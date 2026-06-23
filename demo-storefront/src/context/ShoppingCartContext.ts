@@ -16,4 +16,4 @@ export type ShoppingCartContext = {
   removeFromCart: (id: number) => void;
 };
 
-export const ShoppingCartContext = createContext({} as ShoppingCartContext);
+export const ShoppingCartContext = createContext<ShoppingCartContext | null>(null);

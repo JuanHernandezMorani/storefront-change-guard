@@ -1,8 +1,20 @@
 # Phase 01 — Demo Storefront Preparation
 
 **Date:** 2026-06-23
-**Status:** Complete
+**Status:** Pending Independent Acceptance
 **Scope:** Prepare a clean, testable storefront baseline with documented checkout rules for the controlled regression scenario.
+
+---
+
+## Remediation Status
+
+| Field | Value |
+|---|---|
+| Initial implementation | Completed but pending independent acceptance |
+| Independent manual validation | Discovered an invalid runtime provider-boundary check in `useShoppingCart.ts` |
+| Defect tracker | [Phase-01-FIX-01](phase-01-FIX-01-context-boundary-remediation.md) |
+| Phase-01 acceptance | Pending until Phase-01-FIX-01 is accepted |
+| Original evidence | Preserved below; not rewritten |
 
 ---
 
