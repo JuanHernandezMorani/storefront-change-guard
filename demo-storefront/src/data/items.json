@@ -1,0 +1,65 @@
+[
+    {
+        "id": 1,
+        "name": "GTV V Cd",
+        "description": "Original game disc for GTV V with collector's case. Includes single-player campaign and access to GTA Online. Compatible with major consoles and PCs. A must-have for fans of open-world action games.",
+        "price": 50,
+        "imageUrl": "https://assets2.ignimgs.com/2014/11/17/gta-v-bigjpg-e94b8d1280wjpg-e14d62_160w.jpg?width=1280"
+    },
+    {
+        "id": 2,
+        "name": "Wireless Gaming Mouse",
+        "description": "Ergonomic wireless mouse with RGB lighting and adjustable DPI. Offers precise tracking for FPS and MOBA games. Long battery life with fast USB-C charging. Designed for comfort during extended use.",
+        "price": 35,
+        "imageUrl": "https://images.unsplash.com/photo-1631749352438-7d576312185d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8V2lyZWxlc3MlMjBHYW1pbmclMjBNb3VzZXxlbnwwfHwwfHx8MA%3D%3D"
+    },
+    {
+        "id": 3,
+        "name": "Mechanical Keyboard",
+        "description": "RGB backlit mechanical keyboard with tactile blue switches. Features anti-ghosting, customizable macros, and a detachable wrist rest. Built for gamers and coders alike. Durable metal frame ensures long-term use.",
+        "price": 70,
+        "imageUrl": "https://images.unsplash.com/photo-1558050032-160f36233a07?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8TWVjaGFuaWNhbCUyMEtleWJvYXJkfGVufDB8fDB8fHww"
+    },
+    {
+        "id": 4,
+        "name": "Gaming Headset",
+        "description": "Surround sound headset with noise-canceling microphone. Immersive audio with deep bass and crisp treble. Comfortable padding for long sessions. Perfect for gaming, streaming, or conference calls.",
+        "price": 60,
+        "imageUrl": "https://images.unsplash.com/photo-1593112723196-e841f5c60799?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8R2FtaW5nJTIwSGVhZHNldHxlbnwwfHwwfHx8MA%3D%3D"
+    },
+    {
+        "id": 5,
+        "name": "Webcam HD 1080p",
+        "description": "High-definition webcam with built-in noise-reducing microphone. Offers crystal-clear 1080p video at 30fps. Auto light adjustment for low-light environments. Ideal for remote work, meetings, and content creation.",
+        "price": 40,
+        "imageUrl": "https://images.unsplash.com/photo-1614588876378-b2ffa4520c22?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8V2ViY2FtJTIwSEQlMjAxMDgwcHxlbnwwfHwwfHx8MA%3D%3D"
+    },
+    {
+        "id": 6,
+        "name": "Laptop Cooling Pad",
+        "description": "Silent cooling pad with dual high-speed fans and LED lighting. USB-powered design fits laptops up to 17 inches. Prevents overheating during gaming or heavy workloads. Lightweight and portable for travel.",
+        "price": 25,
+        "imageUrl": "https://plus.unsplash.com/premium_photo-1683309560140-ebbe79458283?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8TGFwdG9wJTIwQ29vbGluZyUyMFBhZHxlbnwwfHwwfHx8MA%3D%3D"
+    },
+    {
+        "id": 8,
+        "name": "Wireless Charging Pad",
+        "description": "Fast Qi wireless charger with sleek and slim design. Supports iPhone, Samsung, and other Qi-enabled devices. Built-in safety features for overcharge and heat protection. LED indicator shows charging status.",
+        "price": 20,
+        "imageUrl": "https://images.unsplash.com/photo-1543472750-506bacbf5808?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8V2lyZWxlc3MlMjBDaGFyZ2luZyUyMFBhZHxlbnwwfHwwfHx8MA%3D%3D"
+    },
+    {
+        "id": 9,
+        "name": "Bluetooth Speaker",
+        "description": "Portable Bluetooth speaker with waterproof build and 360° sound. Long battery life up to 12 hours of playtime. Built-in mic for calls and voice assistants. Great for both indoor and outdoor use.",
+        "price": 45,
+        "imageUrl": "https://images.unsplash.com/photo-1529359744902-86b2ab9edaea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fEJsdWV0b290aCUyMFNwZWFrZXJ8ZW58MHx8MHx8fDA%3D"
+    },
+    {
+        "id": 10,
+        "name": "LED Monitor 24\"",
+        "description": "24-inch Full HD LED monitor with ultra-slim bezel design. Features HDMI and VGA inputs, 75Hz refresh rate, and low blue light filter. Perfect for work, gaming, and content viewing. Sleek and modern look.",
+        "price": 120,
+        "imageUrl": "https://images.unsplash.com/photo-1637946811752-4835a353847d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fExFRCUyME1vbml0b3IlMjAyNHxlbnwwfHwwfHx8MA%3D%3D"
+    }
+]

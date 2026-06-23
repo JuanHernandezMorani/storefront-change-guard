@@ -1,0 +1,60 @@
+policy_version: "0.1.0"
+policy_name: "Storefront Change Guard Initial Policy"
+
+priorities:
+  - operability
+  - privacy
+  - response_time
+  - cost
+
+privacy:
+  local_first: true
+  allow_remote_model_default: false
+  allow_external_network_commands: false
+  allow_model_generated_shell_commands: false
+  retain_source_code_in_reports: false
+
+review:
+  accepted_severities:
+    - critical
+    - high
+    - medium
+    - low
+    - info
+  required_finding_fields:
+    - severity
+    - confidence
+    - file
+    - line_start
+    - title
+    - evidence
+    - impact
+    - recommendation
+  minimum_confidence_for_reported_finding: 0.60
+  require_repository_evidence_match: true
+
+validation:
+  require_git_diff_check: true
+  require_tests_when_available: true
+  require_lint_when_available: true
+  require_build_when_available: true
+  apply_proposed_patch_only_in_temporary_worktree: true
+  preserve_original_candidate_branch: true
+
+readiness_rules:
+  tests_fail: BLOCKED
+  lint_fails: BLOCKED
+  build_fails: BLOCKED
+  git_diff_check_fails: BLOCKED
+  critical_unresolved_finding: NEEDS_CHANGES
+  high_unresolved_finding: NEEDS_CHANGES
+  unsupported_or_unverified_finding: MANUAL_REVIEW_REQUIRED
+  only_low_or_info_findings: READY_WITH_NOTES
+  all_required_checks_pass_and_no_blocking_findings: READY
+
+reporting:
+  include_policy_version: true
+  include_command_exit_codes: true
+  include_validation_worktree_metadata: true
+  include_model_configuration_summary: true
+  redact_environment_secrets: true

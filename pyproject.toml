@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storefront-change-guard"
+version = "0.1.0"
+description = "Local-first, evidence-based e-commerce change review prototype."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+  { name = "Juan Braian Hernández Morani" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5"
+]
+
+[project.scripts]
+storefront-guard = "agent_solution.cli:main"
+
+[tool.setuptools]
+packages = [
+  "agent_solution",
+  "agent_solution.core",
+  "agent_solution.git_tools",
+  "agent_solution.checks",
+  "agent_solution.intelligence",
+  "agent_solution.decision",
+  "agent_solution.reporting"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["agent_solution/tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
