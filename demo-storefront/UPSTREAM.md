@@ -4,9 +4,9 @@ This directory contains an open-source e-commerce project used as a controlled t
 
 ## Original repository
 
-- Repository URL: `TODO: replace with the exact upstream repository URL`
-- Upstream project name: `TODO: replace with the original project name`
-- License: `TODO: identify and preserve the upstream license`
+- Repository URL: `https://github.com/PAIshanMadusha/cart-system-typescript`
+- Upstream project name: `cart-system-typescript`
+- License: `MIT License`
 - Retrieved on: `2026-06-23`
 
 ## Why this project was selected

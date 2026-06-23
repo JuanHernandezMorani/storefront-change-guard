@@ -1,3 +1,14 @@
+Metadata-Version: 2.4
+Name: storefront-change-guard
+Version: 0.1.0
+Summary: Local-first, evidence-based e-commerce change review prototype.
+Author: Juan Braian Hernández Morani
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"
+
 # Storefront Change Guard
 
 > Local-first, evidence-based assistance for reviewing e-commerce code changes.

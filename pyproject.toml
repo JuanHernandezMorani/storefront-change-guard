@@ -7,7 +7,7 @@ name = "storefront-change-guard"
 version = "0.1.0"
 description = "Local-first, evidence-based e-commerce change review prototype."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 authors = [
   { name = "Juan Braian Hernández Morani" }
 ]
@@ -39,7 +39,7 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]

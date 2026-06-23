@@ -1,0 +1,2 @@
+[console_scripts]
+storefront-guard = agent_solution.cli:main
