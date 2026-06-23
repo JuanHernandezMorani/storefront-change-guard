@@ -4,9 +4,9 @@
 
 ## Project status
 
-**Current phase:** Initial repository scaffolding and storefront baseline preparation.
+**Current phase:** Phase 01 — Demo storefront preparation complete.
 
-The prototype is intentionally being built in phases. At this stage, the repository establishes the project boundaries, documentation conventions, audit trail, reporting structure, local configuration contract, and a minimal runnable Python CLI scaffold. It does **not** yet claim that the review workflow, patch validation, or readiness decision engine is implemented.
+The prototype is intentionally being built in phases. Phase 01 has established a clean storefront baseline with lint, build, and test checks. The checkout shipping domain and boundary-rule tests are in place for the controlled regression scenario. The review agent implementation is not yet started.
 
 ## Challenge objective
 
@@ -79,7 +79,8 @@ storefront-change-guard/
 │
 ├── demo-storefront/                  # Open-source e-commerce scenario and controlled changes
 │   ├── UPSTREAM.md                    # Attribution and controlled-modification disclosure
-│   └── ...                            # Existing cloned storefront code
+│   ├── docs/checkout-rules.md         # Shipping boundary-rule documentation
+│   └── src/domain/checkout/           # Integer-cent shipping domain module
 │
 ├── policies/                         # Explicit machine-readable quality policies
 │   └── storefront_policy.yaml
@@ -190,7 +191,7 @@ The exact contract may evolve, but artifacts must remain machine-readable where 
 | Phase | Goal | Primary evidence |
 |---|---|---|
 | Phase 00 | Establish the demo storefront baseline before any modifications. | `AUDIT/phase-00-repository-baseline.md` |
-| Phase 01 | Prepare documented checkout rules, tests, and controlled candidate changes. | Phase audit + storefront commits |
+| Phase 01 | Prepare documented checkout rules, tests, and controlled candidate changes. | Phase audit + storefront commits | ✅ |
 | Phase 02 | Implement Git context collection and deterministic checks. | CLI and automated tests |
 | Phase 03 | Add local-model review with structured output and evidence validation. | Review artifacts + tests |
 | Phase 04 | Add isolated patch application and validation worktrees. | Validation artifacts + integration tests |

@@ -1,0 +1,91 @@
+(.venv) PS C:\Proyectos\storefront-change-guard> Push-Location .\demo-storefront
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront>
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront> npm run lint
+
+> cart-system-typescript@0.0.0 lint
+> eslint .
+
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront> npm run build
+
+> cart-system-typescript@0.0.0 build
+> tsc -b && vite build
+
+vite v7.0.0 building for production...
+[plugin vite:esbuild] src/hooks/useShoppingCart.ts: Comparison using the "===" operator here is always false
+4  |  export function useShoppingCart() {
+5  |    const context = useContext(ShoppingCartContext);
+6  |    if (context === ({} as import("../context/ShoppingCartContext").ShoppingCartContext)) {
+   |                ^
+7  |      throw new Error(
+8  |        "useShoppingCart must be used within a ShoppingCartProvider"
+
+✓ 371 modules transformed.
+dist/index.html                   0.50 kB │ gzip:  0.32 kB
+dist/assets/index-jDWxQNKJ.css  231.04 kB │ gzip: 30.67 kB
+dist/assets/index-CXrUurd8.js   285.00 kB │ gzip: 93.71 kB
+✓ built in 1.28s
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront> npm test
+
+> cart-system-typescript@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.9 C:/Proyectos/storefront-change-guard/demo-storefront
+
+ ✓ src/domain/checkout/shipping.test.ts (5 tests) 3ms
+   ✓ calculateShipping (5)
+     ✓ charges standard shipping when subtotal is below the threshold 1ms
+     ✓ grants free shipping when subtotal is exactly equal to the threshold 0ms
+     ✓ grants free shipping when subtotal is above the threshold 0ms
+     ✓ rejects negative subtotal 0ms
+     ✓ rejects non-finite subtotal 0ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:59:14
+   Duration  206ms (transform 31ms, setup 0ms, import 47ms, tests 3ms, environment 0ms)
+
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront>
+(.venv) PS C:\Proyectos\storefront-change-guard\demo-storefront> Pop-Location
+(.venv) PS C:\Proyectos\storefront-change-guard>
+(.venv) PS C:\Proyectos\storefront-change-guard> git diff --check
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'REPORT/changelog/CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'demo-storefront/vite.config.ts', LF will be replaced by CRLF the next time Git touches it
+(.venv) PS C:\Proyectos\storefront-change-guard> python -m agent_solution status
+Storefront Change Guard bootstrap scaffold
+Version: 0.1.0
+Project root: C:\Proyectos\storefront-change-guard
+Implemented capabilities: package bootstrap only
+Next milestone: Phase 00 repository baseline audit
+(.venv) PS C:\Proyectos\storefront-change-guard> git status
+On branch chore/phase-01-storefront-preparation
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   README.md
+        modified:   REPORT/changelog/CHANGELOG.md
+        modified:   demo-storefront/package-lock.json
+        modified:   demo-storefront/package.json
+        modified:   demo-storefront/src/App.tsx
+        modified:   demo-storefront/src/components/CartItem.tsx
+        modified:   demo-storefront/src/components/Navbar.tsx
+        modified:   demo-storefront/src/components/ShoppingCart.tsx
+        modified:   demo-storefront/src/components/StoreItem.tsx
+        deleted:    demo-storefront/src/context/ShoppingCartContext.tsx
+        modified:   demo-storefront/tsconfig.json
+        modified:   demo-storefront/vite.config.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        AUDIT/phase-01-demo-storefront-preparation.md
+        REPORT/prompts/prompt-001-phase-01-storefront-preparation.md
+        demo-storefront/docs/
+        demo-storefront/src/context/ShoppingCartContext.ts
+        demo-storefront/src/context/ShoppingCartProvider.tsx
+        demo-storefront/src/domain/
+        demo-storefront/src/hooks/useShoppingCart.ts
+        demo-storefront/tsconfig.vitest.json
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(.venv) PS C:\Proyectos\storefront-change-guard>
