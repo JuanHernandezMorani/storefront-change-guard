@@ -1,7 +1,7 @@
 # Checkout Rules Addendum 01 — Monetary Invariant
 
-**Date:** 2026-06-23  
-**Related work:** `Phase-01-FIX-02`  
+**Date:** 2026-06-23
+**Related work:** `Phase-01-FIX-02`
 **Reference:** [`checkout-rules.md`](checkout-rules.md)
 
 ---

@@ -15,6 +15,7 @@ This register records independent review decisions without overwriting underlyin
 | Review ID | Parent Phase | Reviewed Targets | Outcome | Approved Targets | Unapproved Targets | Required Next Action | Audit Link |
 |---|---|---|---|---|---|---|---|
 | `Phase-01-REVIEW-01` | Phase-01 | `Phase-01`, `Phase-01-FIX-01` | `CHANGES_REQUIRED` | `Phase-01-FIX-01` | `Phase-01` | `Phase-01-FIX-02` followed by `Phase-01-REVIEW-02` | [phase-01-review-01.md](phase-01-review-01.md) |
+| `Phase-01-REVIEW-02` | Phase-01 | `Phase-01`, `Phase-01-FIX-01`, `Phase-01-FIX-02` | `CHANGES_REQUIRED` | `Phase-01-FIX-01`, `Phase-01-FIX-02` (functional) | `Phase-01` (whitespace defect) | `Phase-01-FIX-03` to correct trailing whitespace in `checkout-rules-addendum-01-monetary-invariant.md` | [phase-01-REVIEW-02-final-phase-01-acceptance.md](phase-01-REVIEW-02-final-phase-01-acceptance.md) |
 
 ---
 
