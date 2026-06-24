@@ -32,3 +32,23 @@ The format is based on Keep a Changelog and uses semantic categories where pract
 ### Security
 
 - Local-first configuration contract and default restrictions documented.
+
+## 2026-06-23 — Phase-01-FIX-02
+
+### Added
+
+- **Phase-01-FIX-02:** Reusable `assertNonNegativeIntegerCents()` helper in `money.ts` enforcing a finite, non-negative integer-cent invariant.
+- **Phase-01-FIX-02:** Focused fractional-cent rejection tests for `calculateShipping()` and `toDisplay()` (`money.test.ts`).
+- **Phase-01-FIX-02:** Policy addendum for review governance, document immutability, and canonical registers (`POLICY-ADDENDUM-01-REVIEW-AND-IMMUTABILITY.md`).
+- **Phase-01-FIX-02:** Review register (`AUDIT/review-register.md`) with `Phase-01-REVIEW-01` entry.
+- **Phase-01-FIX-02:** Monetary-invariant addendum added at `demo-storefront/docs/checkout-rules-addendum-01-monetary-invariant.md`, preserving the original checkout rules as immutable historical evidence.
+
+### Changed
+
+- **Phase-01-FIX-02:** `calculateShipping()` now uses `assertNonNegativeIntegerCents()` instead of inline validation.
+- **Phase-01-FIX-02:** `toDisplay()` now uses `assertNonNegativeIntegerCents()` instead of inline validation.
+
+### Fixed
+
+- **Phase-01-FIX-02:** Corrected the monetary-domain defect where fractional-cent values (for example, `5000.5`) were accepted by `calculateShipping()` and `toDisplay()` despite the documented integer-cent requirement.
+- **Phase-01-FIX-02:** Added formal review-governance policy to address the lack of independent acceptance authority and the obsolete `fix-register.md` reference.

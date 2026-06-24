@@ -1,4 +1,4 @@
-import { toCents } from "./money";
+import { toCents, assertNonNegativeIntegerCents } from "./money";
 
 /**
  * Free shipping threshold in integer cents.
@@ -18,12 +18,7 @@ export const STANDARD_SHIPPING_FEE_CENTS = toCents(5.99);
  * the threshold.
  */
 export function calculateShipping(subtotalCents: number): number {
-  if (!Number.isFinite(subtotalCents)) {
-    throw new Error("Subtotal must be a finite number");
-  }
-  if (subtotalCents < 0) {
-    throw new Error("Subtotal must not be negative");
-  }
+  assertNonNegativeIntegerCents(subtotalCents, "Subtotal");
   return subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS
     ? 0
     : STANDARD_SHIPPING_FEE_CENTS;

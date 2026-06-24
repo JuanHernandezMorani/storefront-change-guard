@@ -18,6 +18,12 @@ describe("calculateShipping", () => {
     expect(calculateShipping(subtotal)).toBe(0);
   });
 
+  it("rejects fractional cent subtotals", () => {
+    expect(() => calculateShipping(5000.5)).toThrow(
+      "Subtotal must be an integer"
+    );
+  });
+
   it("rejects negative subtotal", () => {
     expect(() => calculateShipping(-1)).toThrow("Subtotal must not be negative");
   });
