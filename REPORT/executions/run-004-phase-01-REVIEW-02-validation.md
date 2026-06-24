@@ -50,9 +50,9 @@
 
 ```text
 demo-storefront/docs/checkout-rules-addendum-01-monetary-invariant.md:3: trailing whitespace.
-+**Date:** 2026-06-23  
++**Date:** 2026-06-23
 demo-storefront/docs/checkout-rules-addendum-01-monetary-invariant.md:4: trailing whitespace.
-+**Related work:** `Phase-01-FIX-02`  
++**Related work:** `Phase-01-FIX-02`
 ```
 
 **Interpretation:** Lines 3 and 4 of `checkout-rules-addendum-01-monetary-invariant.md` in commit `a5fe91c` contain trailing whitespace (two spaces at end of line).

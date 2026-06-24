@@ -109,9 +109,9 @@ The commit-level whitespace check (`git --no-pager show --check --format=fuller 
 
 ```text
 demo-storefront/docs/checkout-rules-addendum-01-monetary-invariant.md:3: trailing whitespace.
-+**Date:** 2026-06-23  
++**Date:** 2026-06-23
 demo-storefront/docs/checkout-rules-addendum-01-monetary-invariant.md:4: trailing whitespace.
-+**Related work:** `Phase-01-FIX-02`  
++**Related work:** `Phase-01-FIX-02`
 ```
 
 **Evidence:** Lines 3 and 4 of the committed `checkout-rules-addendum-01-monetary-invariant.md` contain trailing whitespace (two spaces at end of line).
