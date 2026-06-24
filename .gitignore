@@ -9,6 +9,7 @@ __pycache__/
 htmlcov/
 .venv/
 venv/
+.git/
 
 # Node / frontend
 node_modules/
@@ -47,3 +48,6 @@ REPORT/executions/*.raw.json
 Thumbs.db
 .vscode/
 .idea/
+
+# TEST only
+benchmarks/

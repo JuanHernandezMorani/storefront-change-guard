@@ -1,0 +1,5 @@
+model_id,model_family,quantization,file_size_bytes,file_size_gib,cold_gen_tps_median,cold_gen_tps_mean,cold_gen_tps_p05,cold_gen_tps_p95,cold_gen_tps_cv,cold_gen_tps_count,cold_prompt_tps_median,cold_prompt_tps_mean,cold_prompt_tps_count,cold_peak_rss_gib_median,cold_peak_rss_gib_mean,cold_peak_rss_count,cold_wall_median,cold_wall_mean,cold_wall_count,warm_wall_median,warm_wall_mean,warm_wall_count,cold_status_success,cold_status_failed,quality_smoke_count
+qwen35_4b_ud_q4_k_xl,Qwen3.5-4B,UD-Q4_K_XL,2912109728,2.71,54.1,53.9143,52.8,54.7,0.0113,21,320.0,303.9762,21,2.96,2.96,21,50.8218,65.1152,21,48.1662,36.4661,14,21,0,4
+qwen35_4b_ud_iq3_xxs,Qwen3.5-4B,UD-IQ3_XXS,1949047968,1.82,63.1,62.9286,61.4,64.1,0.0146,21,259.6,230.3476,21,2.06,2.06,21,44.0261,56.6742,21,56.0813,62.9554,14,21,0,4
+qwen35_9b_ud_q4_k_xl,Qwen3.5-9B,UD-Q4_K_XL,5966095584,5.56,33.5,33.5238,33.3,33.7,0.0041,21,206.3,190.5286,21,5.28,5.28,21,69.106,67.3968,21,59.9912,52.0669,14,21,0,4
+qwen35_9b_ud_iq3_xxs,Qwen3.5-9B,UD-IQ3_XXS,4016235744,3.74,39.4,39.3524,39.1,39.6,0.0044,21,156.7,148.0905,21,3.59,3.59,21,60.9068,57.8087,21,46.8531,83.1584,14,21,0,4

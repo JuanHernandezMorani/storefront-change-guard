@@ -15,6 +15,7 @@
 | Defect tracker | [Phase-01-FIX-01](phase-01-FIX-01-context-boundary-remediation.md) |
 | Phase-01 acceptance | Pending until Phase-01-FIX-01 is accepted |
 | Original evidence | Preserved below; not rewritten |
+| Final status | Accepted after Phase-01-REVIEW-02 ([phase-01-REVIEW-02-final-phase-01-acceptance.md](phase-01-REVIEW-02-final-phase-01-acceptance.md)) |
 
 ---
 
