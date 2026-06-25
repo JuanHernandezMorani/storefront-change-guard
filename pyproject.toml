@@ -26,6 +26,7 @@ storefront-guard = "agent_solution.cli:main"
 packages = [
   "agent_solution",
   "agent_solution.core",
+  "agent_solution.intake",
   "agent_solution.git_tools",
   "agent_solution.checks",
   "agent_solution.intelligence",
