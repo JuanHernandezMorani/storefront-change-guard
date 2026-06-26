@@ -1,35 +1,20 @@
-# Phase 04 — Isolated Patch Validation
+# phase 04 isolated patch validation
 
-## Status
+## Resumen en espanol
 
-Accepted after the recorded controlled live validation.
+Este documento forma parte de la trazabilidad del proyecto. Mantengo el original completo en `.original_en/AUDIT/phase-04-isolated-patch-validation.md` y dejo aqui la version de entrega en espanol.
 
-## Scope
+## Estado final
 
-- static unified-diff safety validation;
-- detached temporary Git worktree creation;
-- worktree-only patch preflight and application;
-- named allowlisted validation commands;
-- bounded command evidence and machine-readable JSON artifact;
-- no model call, commit, merge, push, or source-checkout mutation.
+Estado final: `VERIFIED` por `Phase-06-REVIEW-01`, salvo los hallazgos historicos que ya quedaron resueltos por fixes posteriores o por la audiencia final.
 
-## Recorded result
+## Lectura operativa
 
-The controlled patch introduced `STANDARD_SHIPPING_CENTS` in root `shipping.py`
-and added two behavior tests. It ran against base commit
-`618851b4ec4ef5787fba1caf1b08f1aa7cbd415b`.
+- Respeto la propiedad por fase: un fix queda asociado a la fase donde nacio el problema.
+- Documento motivo, disparador, causa raiz, alternativas, decision y validacion cuando corresponde.
+- No otorgo autoridad de merge ni de despliegue al modelo.
+- Uso los artefactos originales preservados para auditoria detallada.
 
-- Status: `VALIDATED`
-- Source checkout unchanged: `true`
-- Worktree creation, patch preflight, patch application, compileall, pytest,
-  Ruff, diff check, and worktree cleanup: all passed
-- Worktree retained: `false`
+## Referencia original
 
-## Evidence
-
-`artifacts/phase04-live/run-20260626-032234/phase04-f90b2e47f8c5.validation.json`
-
-## Remaining boundary
-
-Phase 04 validates a supplied correction. It does not authorize merge,
-deployment, or source-checkout mutation. Those decisions remain outside Phase 04.
+Ver `.original_en/AUDIT/phase-04-isolated-patch-validation.md`.

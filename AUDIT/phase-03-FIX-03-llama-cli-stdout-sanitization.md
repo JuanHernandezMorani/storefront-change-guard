@@ -1,51 +1,20 @@
-# Phase-03-FIX-03 — Deterministic llama-cli stdout sanitization
+# phase 03 FIX 03 llama cli stdout sanitization
 
-## Status
+## Resumen en espanol
 
-Implementation complete and deterministic tests added. Local runtime gates remain
-pending because they require the target Windows executable and GGUF model.
+Este documento forma parte de la trazabilidad del proyecto. Mantengo el original completo en `.original_en/AUDIT/phase-03-FIX-03-llama-cli-stdout-sanitization.md` y dejo aqui la version de entrega en espanol.
 
-## Trigger
+## Estado final
 
-The local live Gate A exposed deterministic `llama-cli` wrapper content on
-stdout before the model response: banner text, an exact prompt echo, and a
-performance/exiting trailer. The model also emitted a leading
-`[Start thinking]...[End thinking]` pair rather than the strict
-`<think>...</think>` spelling expected by Phase 03.
+Estado final: `VERIFIED` por `Phase-06-REVIEW-01`, salvo los hallazgos historicos que ya quedaron resueltos por fixes posteriores o por la audiencia final.
 
-## Correction
+## Lectura operativa
 
-`agent_solution/model/runner.py` now sanitizes only the observed deterministic
-CLI wrapper before Phase 03 envelope parsing:
+- Respeto la propiedad por fase: un fix queda asociado a la fase donde nacio el problema.
+- Documento motivo, disparador, causa raiz, alternativas, decision y validacion cuando corresponde.
+- No otorgo autoridad de merge ni de despliegue al modelo.
+- Uso los artefactos originales preservados para auditoria detallada.
 
-1. Banner/prompt text is removed only when the exact prompt sent by the runner
-   appears after the known `Loading model...` wrapper.
-2. The terminal `[ Prompt: ... ]` plus `Exiting...` trailer is removed only at
-   the output end.
-3. Exactly one complete leading observed thinking pair is normalized to the
-   strict `<think>...</think>` form.
-4. Arbitrary prose, incomplete tags, repeated tags, and unrecognized wrappers
-   remain untouched so the strict envelope parser rejects them.
+## Referencia original
 
-Raw stdout stays transient in the runner. Result/cache/session/report contracts
-receive sanitized model content and compact sanitization categories only.
-
-## Deterministic validation
-
-The runner test suite covers known wrapper stripping, trailer stripping,
-thinking-tag normalization, strict rejection of arbitrary prose, and rejection
-of incomplete/repeated observed thinking tags.
-
-## Historical live follow-up requirement
-
-The required sequence was: rerun Gate A in a fresh state directory, then
-continue to Gates B–D only after Gate A returned schema-valid
-`ANALYSIS_COMPLETED` with non-empty evidence. That sequence was completed;
-see the closeout note below.
-
-## Closeout
-
-The targeted live validation subsequently completed. The Phase 03 Gate A–D
-sequence passed with the selected 9B IQ3 runtime. This record remains limited
-to the deterministic wrapper-sanitization correction; full live results are in
-`REPORT/executions/run-015-phase-03-live-gates.md`.
+Ver `.original_en/AUDIT/phase-03-FIX-03-llama-cli-stdout-sanitization.md`.

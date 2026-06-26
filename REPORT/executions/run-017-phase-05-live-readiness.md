@@ -1,23 +1,9 @@
-# Run 017 — Phase 05 Live Readiness Decision
+# run-017-phase-05-live-readiness
 
-## Purpose
+## Resumen en espanol
 
-Record the deterministic readiness decision using the completed Phase 03 Gate A
-analysis artifact and Phase 04 validation artifact.
+Este registro pertenece a la trazabilidad de ejecuciones o prompts del proyecto. El original completo queda preservado en `.original_en/REPORT/executions/run-017-phase-05-live-readiness.md`.
 
-## Result
+## Estado final
 
-- Decision ID: `phase05-5c01c0f109ec`
-- Status: `READY`
-- Policy version: `phase-05.1.0`
-- Reason code: `ALL_REQUIRED_GATES_PASSED`
-- Source checkout unchanged: `true`
-- Model invocation: none
-
-The runner canonicalized the supplied JSON inputs to UTF-8 without a BOM before
-calling the Python CLI. The decision artifact records SHA-256 fingerprints of
-both inputs.
-
-## Artifact
-
-`artifacts/phase05-live/run-20260626-033155/phase05-5c01c0f109ec.readiness.json`
+La audiencia final `Phase-06-REVIEW-01` verifica que este registro forma parte de la evidencia historica y que no quedan bloqueantes abiertos para la entrega.

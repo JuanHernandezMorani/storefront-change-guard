@@ -1,56 +1,26 @@
-# Architecture
+# Arquitectura
 
-## Purpose
+## Principio principal
 
-Storefront Change Guard reviews a bounded code request, validates evidence-bound
-analysis, validates a supplied patch in an isolated worktree, and produces a
-deterministic readiness decision.
+Divido autoridad y ejecucion. El modelo local ayuda a analizar, pero el sistema deterministico decide que se acepta y que se rechaza.
+
+## Flujo
 
 ```text
-request
-  -> deterministic intake and bounded Git context
-  -> one local model analysis
-  -> schema and evidence validation
-  -> supplied patch in detached worktree
-  -> fixed validation command profile
-  -> deterministic readiness policy
+intake -> evidencia -> modelo local -> validador -> parche aislado -> readiness
 ```
 
-## Components and trust levels
+## Componentes
 
-| Component | Responsibility | Authority |
-|---|---|---|
-| Intake | Classifies a request and resolves a bounded scope. | Deterministic |
-| Git context | Collects read-only repository evidence and fingerprints. | Deterministic |
-| Local model runner | Executes one local `llama-cli` invocation for structured analysis. | Advisory |
-| Evidence/output validator | Validates result shape, claim policy, and evidence references. | Deterministic |
-| Analysis cache | Reuses valid analysis for matching eligible scope/fingerprint state. | Deterministic |
-| Patch validator | Applies a supplied diff only in a detached worktree and runs fixed commands. | Deterministic |
-| Readiness policy | Evaluates only Phase 03 and Phase 04 artifacts. | Deterministic |
-| Artifact writer | Emits bounded JSON evidence for later review. | Deterministic |
+| Componente | Responsabilidad |
+|---|---|
+| Intake | Clasifica la solicitud y detecta alcance, idioma y restricciones. |
+| Git context | Junta evidencia acotada de archivos modificados o solicitados. |
+| Analysis | Ejecuta un unico modelo local y espera JSON estructurado. |
+| Validator | Rechaza salidas invalidas o sin evidencia. |
+| Patch validation | Aplica un diff suministrado en worktree separado. |
+| Readiness policy | Decide `READY`, `NOT_READY` o `INSUFFICIENT_EVIDENCE`. |
 
-## Authority boundaries
+## Fronteras de confianza
 
-- The model cannot execute shell commands or choose validation commands.
-- The source checkout is not automatically modified, committed, merged, or
-  pushed.
-- A model finding is not proof by itself; claims must reference collected
-  evidence and pass deterministic validation.
-- Phase 04 accepts a supplied patch. It does not generate, merge, or deploy one.
-- Phase 05 consumes artifacts only. It cannot call a model, apply a patch, run a
-  test, or override failed validation.
-
-## Non-goals
-
-- Autonomous commits, merges, pushes, or deployment.
-- Model-generated arbitrary shell commands.
-- Cloud-only inference dependency.
-- Multi-model routing or fallback chains.
-- Vector-database indexing or broad autonomous repository exploration.
-- A web user interface.
-
-## Operational trade-off
-
-The design favors a small, auditable workflow over broader autonomy. Bounded
-context and strict validation can produce `INSUFFICIENT_EVIDENCE` for requests
-outside the selected scope; that behavior is intentional.
+El modelo no tiene shell ni autoridad de merge. Los comandos de validacion estan allowlistados. La decision final no depende de texto libre del modelo sino de artefactos JSON previos.
