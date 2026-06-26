@@ -1,33 +1,20 @@
-# Phase 05 — Deterministic Readiness Policy
+# phase 05 readiness policy
 
-## Status
+## Resumen en espanol
 
-Accepted after a recorded live decision using the completed Phase 03 and Phase
-04 artifacts.
+Este documento forma parte de la trazabilidad del proyecto. Mantengo el original completo en `.original_en/AUDIT/phase-05-readiness-policy.md` y dejo aqui la version de entrega en espanol.
 
-## Decision authority
+## Estado final
 
-Phase 05 consumes only prior machine-readable artifacts. It has no model call,
-patch-application capability, shell execution, or repository mutation.
+Estado final: `VERIFIED` por `Phase-06-REVIEW-01`, salvo los hallazgos historicos que ya quedaron resueltos por fixes posteriores o por la audiencia final.
 
-`READY` requires a completed Phase 03 analysis, no `HIGH` or `CRITICAL`
-findings, a `VALIDATED` Phase 04 artifact, and every recorded Phase 04 command
-passing without a timeout.
+## Lectura operativa
 
-## Recorded result
+- Respeto la propiedad por fase: un fix queda asociado a la fase donde nacio el problema.
+- Documento motivo, disparador, causa raiz, alternativas, decision y validacion cuando corresponde.
+- No otorgo autoridad de merge ni de despliegue al modelo.
+- Uso los artefactos originales preservados para auditoria detallada.
 
-- Decision ID: `phase05-5c01c0f109ec`
-- Policy version: `phase-05.1.0`
-- Status: `READY`
-- Reason: `ALL_REQUIRED_GATES_PASSED`
-- Source checkout unchanged: `true`
-- Model invocation: none
+## Referencia original
 
-## Evidence
-
-`artifacts/phase05-live/run-20260626-033155/phase05-5c01c0f109ec.readiness.json`
-
-## Remaining boundary
-
-`READY` is a policy result for the supplied artifacts. It is not merge,
-deployment, or production authority.
+Ver `.original_en/AUDIT/phase-05-readiness-policy.md`.

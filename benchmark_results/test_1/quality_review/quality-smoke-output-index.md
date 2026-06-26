@@ -1,20 +1,3 @@
-# Quality Smoke Output Index
+# Indice de salidas de quality smoke
 
-| Model | Quantization | Prompt | Expected Type | Output Path | Exists |
-|-------|-------------|--------|---------------|-------------|--------|
-| Qwen3.5-4B Q4_K_XL | UD-Q4_K_XL | verified_shipping_rule | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_q4_k_xl__verified_shipping_rule.stdout.txt` | Yes |
-| Qwen3.5-4B Q4_K_XL | UD-Q4_K_XL | inferred_scope | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_q4_k_xl__inferred_scope.stdout.txt` | Yes |
-| Qwen3.5-4B Q4_K_XL | UD-Q4_K_XL | unknown_approval | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_q4_k_xl__unknown_approval.stdout.txt` | Yes |
-| Qwen3.5-4B Q4_K_XL | UD-Q4_K_XL | anti_hallucination_review | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_q4_k_xl__anti_hallucination_review.stdout.txt` | Yes |
-| Qwen3.5-4B IQ3_XXS | UD-IQ3_XXS | verified_shipping_rule | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_iq3_xxs__verified_shipping_rule.stdout.txt` | Yes |
-| Qwen3.5-4B IQ3_XXS | UD-IQ3_XXS | inferred_scope | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_iq3_xxs__inferred_scope.stdout.txt` | Yes |
-| Qwen3.5-4B IQ3_XXS | UD-IQ3_XXS | unknown_approval | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_iq3_xxs__unknown_approval.stdout.txt` | Yes |
-| Qwen3.5-4B IQ3_XXS | UD-IQ3_XXS | anti_hallucination_review | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_4b_ud_iq3_xxs__anti_hallucination_review.stdout.txt` | Yes |
-| Qwen3.5-9B Q4_K_XL | UD-Q4_K_XL | verified_shipping_rule | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_q4_k_xl__verified_shipping_rule.stdout.txt` | Yes |
-| Qwen3.5-9B Q4_K_XL | UD-Q4_K_XL | inferred_scope | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_q4_k_xl__inferred_scope.stdout.txt` | Yes |
-| Qwen3.5-9B Q4_K_XL | UD-Q4_K_XL | unknown_approval | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_q4_k_xl__unknown_approval.stdout.txt` | Yes |
-| Qwen3.5-9B Q4_K_XL | UD-Q4_K_XL | anti_hallucination_review | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_q4_k_xl__anti_hallucination_review.stdout.txt` | Yes |
-| Qwen3.5-9B IQ3_XXS | UD-IQ3_XXS | verified_shipping_rule | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_iq3_xxs__verified_shipping_rule.stdout.txt` | Yes |
-| Qwen3.5-9B IQ3_XXS | UD-IQ3_XXS | inferred_scope | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_iq3_xxs__inferred_scope.stdout.txt` | Yes |
-| Qwen3.5-9B IQ3_XXS | UD-IQ3_XXS | unknown_approval | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_iq3_xxs__unknown_approval.stdout.txt` | Yes |
-| Qwen3.5-9B IQ3_XXS | UD-IQ3_XXS | anti_hallucination_review | None | `C:\Proyectos\storefront-change-guard\benchmarks\model_selection\runs\model-selection-final-20260624\raw\quality__qwen35_9b_ud_iq3_xxs__anti_hallucination_review.stdout.txt` | Yes |
+Indice de salidas usadas para revisar calidad. Mantengo los datos tabulares originales y los originales en ingles dentro de `.original_en/`.

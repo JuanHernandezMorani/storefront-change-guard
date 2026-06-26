@@ -1,76 +1,49 @@
-# Changelog
+# Registro de cambios
 
-All notable changes to this project are documented here.
+## [0.6.0] - 2026-06-26
 
-## [0.5.0] — 2026-06-26
+### Agregado
 
-### Added
+- Agregue la audiencia final `Phase-06-REVIEW-01` para verificar reglas de trazabilidad, cobertura del reto, README, decision document, PowerPoint y limites de entrega.
+- Agregue la presentacion en PowerPoint en espanol con resumen ejecutivo, arquitectura, capacidades, cambio de modelo, graficos de Test 1 y plan de demo.
+- Agregue `docs/decision-document.pdf` como version de lectura del documento de decisiones.
+- Preserve la documentacion original en ingles dentro de `.original_en/`.
 
-- Tracked delivery runners under `scripts/` for Phase 04 live patch validation
-  and Phase 05 live readiness evaluation.
-- Phase 06 delivery-readiness audit, challenge coverage matrix, delivery
-  manifest, and final execution summaries.
-- Successful Phase 04 and Phase 05 machine-readable artifacts to the delivery
-  bundle.
+### Cambiado
 
-### Changed
+- Actualice la documentacion principal a espanol para el publico de exposicion.
+- Actualice el README con instalacion y ejecucion paso a paso.
+- Reubique la narrativa final alrededor de evidencia reproducible: Test 1 permanece como benchmark de rendimiento, mientras que el cambio a 9B queda justificado por cumplimiento del contrato estructurado.
 
-- Selected `Qwen3.5-9B-UD-IQ3_XXS.gguf` as the one active Phase 03 product
-  runtime after controlled structured-output evidence.
-- Phase 03 live gate runner now uses portable repository-relative defaults and
-  persists future artifacts under `artifacts/phase03-live/`.
-- Updated documentation to reflect completed Phase 03 gates, Phase 04
-  validation, and Phase 05 `READY` decision.
+### Verificado
 
-### Fixed
+- `benchmarks/` y `storefront_change_guard.egg-info/` estan cubiertos por `.gitignore` y son seguros de excluir de la entrega.
+- `benchmark_results/` queda incluido porque contiene la evidencia seleccionada del Test 1.
+- El estado final cubre las cuatro capacidades solicitadas por el reto.
 
-- Derived analysis runtime identity from the active GGUF filename rather than a
-  hardcoded 4B label.
-- Prioritized explicit requested file scope over unrelated working-tree diffs
-  for evidence collection and cache eligibility.
-- Accepted safe ASCII Spanish file-scoped Q&A in the live runner without
-  relying on PowerShell Unicode source decoding.
-- Canonicalized Phase 05 JSON inputs to UTF-8 without a BOM before Python
-  artifact loading.
+## [0.5.0] - 2026-06-26
 
-## [0.4.0] — 2026-06-26
+- Consolide runners de entrega, Phase 04, Phase 05, Phase 06 y artefactos vivos.
+- Seleccione `Qwen3.5-9B-UD-IQ3_XXS.gguf` como runtime de producto despues de evidencia controlada.
+- Corregi identidad de modelo, scope explicito, cache y lectura JSON UTF-8 sin BOM.
 
-### Added
+## [0.4.0] - 2026-06-26
 
-- Phase 04 deterministic isolated patch validation with static unified-diff
-  safety checks, detached Git worktrees, fixed validation profiles, and
-  machine-readable artifacts.
-- Phase 05 deterministic readiness policy consuming Phase 03/04 JSON artifacts.
-- Phase-scoped deterministic test runner and PowerShell wrapper.
+- Agregue validacion aislada de parches y politica deterministica de readiness.
+- Endureci el limite de stdout de `llama-cli` y el manejo del envelope de razonamiento.
 
-### Fixed
+## [0.3.0] - 2026-06-24
 
-- Strict runtime-boundary handling for observed `llama-cli` wrappers and one
-  complete leading thinking envelope. Raw model reasoning is not retained.
+- Agregue analisis semantico local con evidencia, cache y validacion estructurada.
 
-## [0.3.0] — 2026-06-24
+## [0.2.1] - 2026-06-24
 
-### Added
+- Agregue contexto Git, fingerprint y excerpts acotados.
 
-- Phase 03 evidence-grounded semantic analysis with one local model,
-  deterministic evidence validation, structured result rendering, cache, and
-  session state.
+## [0.2.0] - 2026-06-24
 
-## [0.2.1] — 2026-06-24
+- Corregi contrato de intake y deteccion deterministica de objetivos mixtos.
 
-### Added
+## [0.1.0] - 2026-06-23
 
-- Phase 02B Git context collection, repository fingerprinting, bounded changed
-  file discovery, and safe excerpt collection.
-
-## [0.2.0] — 2026-06-24
-
-### Fixed
-
-- Phase 02 intake decision contract and deterministic mixed-goals detection.
-
-## [0.1.0] — 2026-06-23
-
-### Added
-
-- Project bootstrap, controlled storefront preparation, and initial intake gate.
+- Inicialice el proyecto, el storefront controlado y el primer intake gate.

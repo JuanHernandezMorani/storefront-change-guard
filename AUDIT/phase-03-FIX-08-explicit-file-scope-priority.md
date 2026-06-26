@@ -1,54 +1,20 @@
-# Phase-03-FIX-08 — Explicit File Scope Priority
+# phase 03 FIX 08 explicit file scope priority
 
-## Trigger
+## Resumen en espanol
 
-The Phase 03 A-D live-gate runner invoked Gate A with the explicit request:
+Este documento forma parte de la trazabilidad del proyecto. Mantengo el original completo en `.original_en/AUDIT/phase-03-FIX-08-explicit-file-scope-priority.md` y dejo aqui la version de entrega en espanol.
 
-```text
-Review shipping.py.
-```
+## Estado final
 
-The result was `INSUFFICIENT_EVIDENCE` before any model call, even though
-`shipping.py` exists and the same target had previously produced a valid 9B
-structured response.
+Estado final: `VERIFIED` por `Phase-06-REVIEW-01`, salvo los hallazgos historicos que ya quedaron resueltos por fixes posteriores o por la audiencia final.
 
-The returned limitation reported that all evidence records were excluded during
-context reduction. The final reduced empty prompt fit the context window, but
-the last non-empty bundle did not. The report therefore looked contradictory
-because it displayed the empty-prompt total rather than the last non-empty
-bundle total.
+## Lectura operativa
 
-## Root cause
+- Respeto la propiedad por fase: un fix queda asociado a la fase donde nacio el problema.
+- Documento motivo, disparador, causa raiz, alternativas, decision y validacion cuando corresponde.
+- No otorgo autoridad de merge ni de despliegue al modelo.
+- Uso los artefactos originales preservados para auditoria detallada.
 
-The evidence builder added broad staged/unstaged diff artifacts before the
-explicit target file. The context reducer removed records from the end of the
-list, so it removed `shipping.py` first and retained unrelated implementation
-diff evidence until the final removal.
+## Referencia original
 
-This violated the intended authority boundary: a named file is the requested
-review scope, while a broad working-tree diff may be unrelated noise.
-
-## Correction
-
-1. For `CODE_REVIEW`, `BUG_DIAGNOSIS`, and `CODEBASE_QUESTION` requests with
-   explicit file targets, collect the named eligible file(s) as the Phase 03
-   evidence bundle and omit generic working-tree diff/excerpt evidence.
-2. During any remaining context reduction, remove generic diff evidence before
-   file excerpts, search results, and explicit targets.
-3. Report the last non-empty budget when no non-empty bundle can fit.
-
-## Scope and safety
-
-- No model fallback, routing, retry, cloud dependency, or second model call.
-- No parser relaxation.
-- No mutation of the repository under review.
-- Phase 03 still requires real Gates A-D after this correction.
-
-## Acceptance criteria
-
-- A broad unrelated local diff cannot prevent `Review shipping.py.` from
-  collecting `shipping.py` evidence.
-- The target file is retained as `EXPLICIT_PATH`.
-- A model invocation remains possible when the explicit target fits the
-  configured context budget.
-- Deterministic tests, Ruff, compileall, and Git whitespace checks pass.
+Ver `.original_en/AUDIT/phase-03-FIX-08-explicit-file-scope-priority.md`.

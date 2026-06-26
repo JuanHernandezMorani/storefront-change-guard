@@ -1,39 +1,20 @@
-# Phase 06 — Delivery Readiness
+# phase 06 delivery readiness
 
-## Status
+## Resumen en espanol
 
-Delivery package prepared.
+Este documento forma parte de la trazabilidad del proyecto. Mantengo el original completo en `.original_en/AUDIT/phase-06-delivery-readiness.md` y dejo aqui la version de entrega en espanol.
 
-## Scope
+## Estado final
 
-Phase 06 consolidates final documentation, tracked operational runners, live
-evidence references, package boundaries, and the presentation/runbook material.
-It does not alter the model contract, patch-validation policy, or readiness
-policy.
+Estado final: `VERIFIED` por `Phase-06-REVIEW-01`, salvo los hallazgos historicos que ya quedaron resueltos por fixes posteriores o por la audiencia final.
 
-## Evidence review
+## Lectura operativa
 
-| Area | Result | Reference |
-|---|---|---|
-| Phase 03 local analysis | Gates A–D passed with selected 9B IQ3 runtime | `REPORT/executions/run-015-phase-03-live-gates.md` |
-| Phase 04 patch validation | `VALIDATED`; source checkout unchanged; all recorded commands passed | `artifacts/phase04-live/run-20260626-032234/` |
-| Phase 05 readiness | `READY`; deterministic policy only; source checkout unchanged | `artifacts/phase05-live/run-20260626-033155/` |
-| Deterministic package checks | 219 tests, Ruff, and compileall pass in the final package verification copy | `REPORT/executions/run-018-phase-06-package-verification.md` |
+- Respeto la propiedad por fase: un fix queda asociado a la fase donde nacio el problema.
+- Documento motivo, disparador, causa raiz, alternativas, decision y validacion cuando corresponde.
+- No otorgo autoridad de merge ni de despliegue al modelo.
+- Uso los artefactos originales preservados para auditoria detallada.
 
-## Delivery controls
+## Referencia original
 
-- All required operational PowerShell scripts are under `scripts/`.
-- Root-level exploratory scripts and benchmark harnesses are excluded.
-- Model weights, `.env`, virtual environments, Git metadata, caches, and raw
-  model reasoning are excluded.
-- The recorded Phase 04 and Phase 05 artifacts remain included as delivery
-  evidence; they preserve original machine-readable content and hashes.
-- The delivery runbook documents a clean-environment repeat of deterministic
-  tests and live gates.
-
-## Acceptance statement
-
-The package contains the source, tests, runnable tracked scripts, policy files,
-final documentation, and supporting live evidence needed to demonstrate the
-selected scope. The prototype remains intentionally bounded: it does not merge,
-deploy, or replace human approval.
+Ver `.original_en/AUDIT/phase-06-delivery-readiness.md`.
