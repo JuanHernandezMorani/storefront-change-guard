@@ -295,6 +295,7 @@ def process_request(
 
     # Extract explicit file targets from request text
     explicit_file_targets = extract_file_targets(normalized)
+    has_paths = has_paths or bool(explicit_file_targets)
 
     # --- Step 1: Classify ---
     task_type, confidence = classify_request(clean_text)
