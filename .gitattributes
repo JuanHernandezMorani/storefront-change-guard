@@ -1,0 +1,3 @@
+# Keep repository text portable and avoid CRLF-only whitespace false positives.
+* text=auto eol=lf
+*.ps1 text eol=lf

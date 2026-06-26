@@ -1,6 +1,6 @@
 import { Button, Container, Nav, Navbar as NavbarBs } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { useShoppingCart } from "../context/ShoppingCartContext";
+import { useShoppingCart } from "../hooks/useShoppingCart";
 import { FaHome, FaInfoCircle } from "react-icons/fa";
 
 export function Navbar() {

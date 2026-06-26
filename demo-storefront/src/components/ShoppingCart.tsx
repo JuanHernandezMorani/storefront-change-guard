@@ -1,8 +1,13 @@
 import { Offcanvas, Stack, Button } from "react-bootstrap";
-import { useShoppingCart } from "../context/ShoppingCartContext";
+import { useShoppingCart } from "../hooks/useShoppingCart";
 import { CartItem } from "./CartItem";
 import storeItems from "../data/items.json";
 import { formatCurrency } from "../utilities/formatCurrency";
+import { toCents } from "../domain/checkout/money";
+import {
+  calculateShipping,
+  STANDARD_SHIPPING_FEE_CENTS,
+} from "../domain/checkout/shipping";
 
 type ShoppingCartProps = {
   isOpen: boolean;
@@ -11,10 +16,13 @@ type ShoppingCartProps = {
 export function ShoppingCart({ isOpen }: ShoppingCartProps) {
   const { closeCart, cartItems } = useShoppingCart();
 
-  const total = cartItems.reduce((total, cartItem) => {
+  const subtotalCents = cartItems.reduce((acc, cartItem) => {
     const item = storeItems.find((i) => i.id === cartItem.id);
-    return total + (item?.price || 0) * cartItem.quantity;
+    return acc + toCents(item?.price ?? 0) * cartItem.quantity;
   }, 0);
+
+  const shippingCents = calculateShipping(subtotalCents);
+  const totalCents = subtotalCents + shippingCents;
 
   return (
     <Offcanvas show={isOpen} onHide={closeCart} placement="end">
@@ -40,11 +48,25 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
               ))}
             </Stack>
 
-            {/* Total + Checkout */}
+            {/* Subtotal, Shipping, Total + Checkout */}
             <div className="border-top pt-3 mt-2">
-              <div className="d-flex justify-content-between align-items-center fw-bold fs-5">
+              <div className="d-flex justify-content-between mb-1">
+                <span>Subtotal:</span>
+                <span>{formatCurrency(subtotalCents / 100)}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-1">
+                <span>Shipping:</span>
+                <span>
+                  {shippingCents === 0
+                    ? "Free"
+                    : `Standard (${formatCurrency(STANDARD_SHIPPING_FEE_CENTS / 100)})`}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center fw-bold fs-5 mt-2">
                 <span>Total:</span>
-                <span className="text-success">{formatCurrency(total)}</span>
+                <span className="text-success">
+                  {formatCurrency(totalCents / 100)}
+                </span>
               </div>
               <Button
                 variant="success"

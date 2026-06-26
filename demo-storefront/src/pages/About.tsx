@@ -8,7 +8,7 @@ export function About() {
         <Col>
           <h1 className="fw-bold mb-3">About This Project</h1>
           <p className="text-muted fs-4">
-            A modern, minimal, and responsive shopping cart built with 
+            A modern, minimal, and responsive shopping cart built with
             <FaReact className="text-primary mx-1" /> React, TypeScript, and Bootstrap.
           </p>
         </Col>

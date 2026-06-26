@@ -1,0 +1,14 @@
+{
+  "model_id": "qwen3.5-9b-ud-iq3-xxs",
+  "expected_filename": "Qwen3.5-9B-UD-IQ3_XXS.gguf",
+  "relative_model_path": "agent_solution/model/Qwen3.5-9B-UD-IQ3_XXS.gguf",
+  "runtime_backend": "llama.cpp",
+  "selection_status": "selected_for_phase03_live_gates",
+  "selection_evidence": "docs/model-selection.md",
+  "sha256": "<computed_locally_before_delivery>",
+  "quantization": "UD-IQ3_XXS",
+  "configured_context_limit": 8192,
+  "configured_completion_limit": 2048,
+  "prompt_schema_version": "0.3.1",
+  "runtime_profile_version": "0.3.3"
+}

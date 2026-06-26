@@ -1,0 +1,113 @@
+{
+  "package": "benchmark_results",
+  "test_1_source_run": "model-selection-final-20260624",
+  "created_at_utc": "2026-06-24T14:29:24.331053+00:00",
+  "source_events_sha256": "b1a272208e9a4d99bb1bd03ee6c4c645094712943ce566d982fc105573a10623",
+  "artifact_count": 26,
+  "artifacts": {
+    "README.md": {
+      "sha256": "c8958290479d0b5452c8f23af792b9799db66e68a6a84bf30180e77bb2235cd2",
+      "size_bytes": 549
+    },
+    "test_1/README.md": {
+      "sha256": "7bc420bb159c85e241829181730285540b7c042e96f270d6c475e6e237fa3591",
+      "size_bytes": 19313
+    },
+    "test_1/data/evidence-inventory.md": {
+      "sha256": "065af9816d848a5ec2c2a0eb5a57b6829b633e7d86ffb8c7b467c99571c85dd3",
+      "size_bytes": 1895
+    },
+    "test_1/data/model-summary.csv": {
+      "sha256": "35df8d503bd97ffcd2ae7e6e00fbfa4e65900b3567b83f26ec6842459234e904",
+      "size_bytes": 1137
+    },
+    "test_1/data/model-summary.json": {
+      "sha256": "7cbbce1915fae7faed20df33aada15ddac47d1ae89fb0842ccc4ab3539ff2af7",
+      "size_bytes": 3518
+    },
+    "test_1/data/outlier-analysis.csv": {
+      "sha256": "25cead76c63d6002e3a2700fa1691b598638e12d7e6502e3ae371fc2023eaa61",
+      "size_bytes": 136224
+    },
+    "test_1/data/outlier-analysis.json": {
+      "sha256": "1962ddbb38160d9c959441b584c38abb1013dd597059e1ae885961d37c8aa4a6",
+      "size_bytes": 257687
+    },
+    "test_1/data/prompt-summary.csv": {
+      "sha256": "5eab45f7e9ddbed9a4468d6cffa4b333603feeb3969b8488ffb1acd8896d8485",
+      "size_bytes": 516
+    },
+    "test_1/data/prompt-summary.json": {
+      "sha256": "1834dd3d45874e0899a1f828deefe02afa9a4ec6fa4907d7a676a581098f54e9",
+      "size_bytes": 1885
+    },
+    "test_1/data/source-analysis-manifest.md": {
+      "sha256": "d1eb87ccdbba49c40c06961f2d71b8404a123e163b33ea5c51a0ac45c72855d0",
+      "size_bytes": 5966
+    },
+    "test_1/plots/cold_cli_generation_throughput_distribution.png": {
+      "sha256": "db4a0878baed265ed566abec37e476ab27ca21b0869c71827991eb40bc9afd47",
+      "size_bytes": 90414
+    },
+    "test_1/plots/cold_cli_generation_throughput_variability.png": {
+      "sha256": "db56d1e460e3ca9da6dddd06ba57a3e2fe89dd16ccefa9fbafc4d23f894bcdf9",
+      "size_bytes": 87898
+    },
+    "test_1/plots/cold_cli_model_size_vs_generation_throughput.png": {
+      "sha256": "da969fbcf5f8d11a235ef1aaba6e1e40d602c6389f84eb18b40cd6b4a4cc6954",
+      "size_bytes": 57358
+    },
+    "test_1/plots/cold_cli_peak_memory_distribution.png": {
+      "sha256": "9c658fcac4f2119232dcbba815963d5e502b3ef3cff97760838298544db7f16d",
+      "size_bytes": 76167
+    },
+    "test_1/plots/cold_cli_prompt_throughput_distribution.png": {
+      "sha256": "3a03adc97f5b541afb1403e6c59a8d767a246cf805708d64fe051fecc0db8928",
+      "size_bytes": 95311
+    },
+    "test_1/plots/cold_cli_prompt_vs_generation_throughput.png": {
+      "sha256": "053208d7a69299bb08c725a77ee75971f81fbc265d25088eda69f38c65995548",
+      "size_bytes": 75973
+    },
+    "test_1/plots/cold_cli_success_and_failure_summary.png": {
+      "sha256": "36763373f5b3c43373cace84dba41c8935ce60201ae91eb289fe43e7581d8320",
+      "size_bytes": 50385
+    },
+    "test_1/plots/cold_cli_wall_time_by_prompt.png": {
+      "sha256": "3c66d30bc6670d5f8e577586dff1b00fc285f18061e705b948938102b5233f97",
+      "size_bytes": 146433
+    },
+    "test_1/plots/cold_vs_server_metric_provenance.png": {
+      "sha256": "f8075bf684efe4c7d37768271986bf9cbde3ccaa46b50ab3fdbbaec8fd672ea3",
+      "size_bytes": 59261
+    },
+    "test_1/plots/server_sequential_request_wall_time_by_turn.png": {
+      "sha256": "5d81cd3c49031140a3711b036117a7477e09e8e367835d718b4c257181509622",
+      "size_bytes": 322868
+    },
+    "test_1/plots/server_sequential_session_total_duration.png": {
+      "sha256": "a6e0a85ef54ce6cc1f65a0b6eea5f7eb46b40771edc48ea0c1fd53152b3f1ada",
+      "size_bytes": 55603
+    },
+    "test_1/plots/server_startup_and_health_latency.png": {
+      "sha256": "12621106ddac9f6dad6b5fd6fa1de1ed7e3aa4746b8d5e461b67aa7186858f51",
+      "size_bytes": 45727
+    },
+    "test_1/quality_review/quality-review-guide.md": {
+      "sha256": "a44c6a1369ea1b1c0f467b658b808114283c715c5701ccd4b043b060f3155e66",
+      "size_bytes": 1757
+    },
+    "test_1/quality_review/quality-review-template.csv": {
+      "sha256": "ad0aa8702b46079bdf86042bc24ef47473cc30ad400cbcd3fa804f97cf32ebd1",
+      "size_bytes": 4066
+    },
+    "test_1/quality_review/quality-smoke-output-index.csv": {
+      "sha256": "17639e1b442cb9b66d3acd713f0a313c2f99973adc6f416ee484740a3b4e29c9",
+      "size_bytes": 3692
+    },
+    "test_1/quality_review/quality-smoke-output-index.md": {
+      "sha256": "69d15110dcfab6ce7a7105e26a498738f06b364c62682acc3ade54d85ea4fdf4",
+      "size_bytes": 4057
+    }
+  }
+}

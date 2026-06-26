@@ -9,6 +9,7 @@ __pycache__/
 htmlcov/
 .venv/
 venv/
+.git/
 
 # Node / frontend
 node_modules/
@@ -27,6 +28,37 @@ coverage/
 *.pem
 secrets/
 credentials/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.ps1
+*.bat
+*.sh
+!scripts/
+!scripts/*.py
+!scripts/*.ps1
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 
 # Runtime data and temporary validation worktrees
 artifacts/*
@@ -47,3 +79,15 @@ REPORT/executions/*.raw.json
 Thumbs.db
 .vscode/
 .idea/
+
+# TEST only
+benchmarks/
+
+# models
+agent_solution/model/*.gguf
+agent_solution/model/*.bin
+agent_solution/model/*.safetensors
+agent_solution/model/*.pt
+agent_solution/model/*.pth
+agent_solution/model/*.onnx
+*.egg-info/

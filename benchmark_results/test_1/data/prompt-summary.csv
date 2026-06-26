@@ -1,0 +1,8 @@
+prompt_id,cold_gen_tps_median,cold_gen_tps_mean,cold_gen_tps_cv,cold_gen_tps_count,cold_wall_median,cold_wall_mean,cold_wall_count
+scraper_en,47.1,47.9833,0.2612,12,20.5886,19.3719,12
+scraper_es,47.0,47.8417,0.26,12,26.7606,27.4327,12
+startup_plan_en,46.75,47.5583,0.2579,12,55.7655,56.1939,12
+startup_plan_es,46.0,46.7,0.2462,12,112.4254,116.8856,12
+train_en,46.45,47.1,0.2538,12,89.5319,99.0687,12
+train_es,46.2,47.1583,0.2547,12,84.3984,83.1994,12
+warmup_gpu_en,46.75,47.6667,0.2586,12,31.6944,30.0888,12

@@ -1,0 +1,12 @@
+# Model binaries - never commit
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# Model logs
+*.log
+
+# Large model artifacts

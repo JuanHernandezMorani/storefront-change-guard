@@ -1,24 +1,12 @@
-# Changelog
+# Delivery Changelog Summary
 
-All notable changes to this prototype will be documented in this file.
+## 2026-06-26 — Final delivery consolidation
 
-The format is based on Keep a Changelog and uses semantic categories where practical.
+- Phase 03 live gates A–D completed with the selected one-model 9B IQ3 runtime.
+- Phase 04 isolated supplied-patch validation completed with `VALIDATED`.
+- Phase 05 deterministic readiness completed with `READY`.
+- Operational runners were consolidated under `scripts/`.
+- Phase 06 documentation, execution summaries, challenge coverage, and package
+  boundaries were finalized.
 
-## [Unreleased]
-
-### Added
-
-- Initial project scaffolding.
-- Documentation, audit, report, policy, and Python package foundations.
-
-### Changed
-
-- None yet.
-
-### Fixed
-
-- None yet.
-
-### Security
-
-- Local-first configuration contract and default restrictions documented.
+See the root `CHANGELOG.md` for the complete release-oriented history.

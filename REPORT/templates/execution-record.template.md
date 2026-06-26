@@ -17,12 +17,12 @@
 
 ## Outcome
 
-- 
+-
 
 ## Artifact references
 
-- 
+-
 
 ## Limitations / follow-up
 
-- 
+-
