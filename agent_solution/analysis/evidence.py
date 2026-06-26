@@ -1,8 +1,14 @@
 """Evidence bundle builder.
 
 Constructs bounded evidence bundles from Phase 2 intake contracts and
-Git context snapshots.  Performs one deterministic evidence-expansion
-pass before model invocation.
+Git context snapshots. Performs one deterministic evidence-expansion pass before
+model invocation.
+
+Explicit file targets are an authority boundary, not a hint. When the request
+names a concrete eligible file, Phase 03 uses that target as the review scope
+and deliberately excludes unrelated working-tree diff artifacts. This prevents
+an in-progress implementation diff from crowding out the file the user asked
+to review.
 """
 
 from __future__ import annotations
@@ -27,6 +33,14 @@ _ELIGIBLE_EXTENSIONS: frozenset[str] = frozenset({
     ".json", ".xml", ".md", ".txt", ".cfg", ".ini", ".env",
 })
 
+# A concrete path is sufficient evidence scope for these non-mutating Phase 03
+# requests. It intentionally constrains collection to the named file(s).
+_EXPLICIT_TARGET_SCOPE_TASKS: frozenset[TaskType] = frozenset({
+    TaskType.CODE_REVIEW,
+    TaskType.BUG_DIAGNOSIS,
+    TaskType.CODEBASE_QUESTION,
+})
+
 
 def _sha256_text(text: str) -> str:
     """Return hex SHA-256 of UTF-8 encoded text."""
@@ -48,7 +62,7 @@ def _truncate_content(content: str, max_bytes: int) -> tuple[str, bool]:
 
 
 class EvidenceBundleBuilder:
-    """Builds bounded evidence bundles from Phase 2 outputs.
+    """Build bounded evidence bundles from Phase 2 outputs.
 
     Consumes IntakeContract and GitContextSnapshot without modifying them.
     Performs one deterministic expansion pass within Phase 2 scope.
@@ -57,32 +71,106 @@ class EvidenceBundleBuilder:
     def __init__(self, limits: Phase3Limits | None = None):
         self._limits = limits or Phase3Limits()
 
-    def build(
+    @staticmethod
+    def _explicit_targets(intake: IntakeContract) -> tuple[str, ...]:
+        scope = intake.resolved_scope
+        targets = getattr(scope, "explicit_file_targets", ())
+        return tuple(targets)
+
+    def _append_explicit_target_records(
         self,
-        analysis_request_id: str,
+        *,
         intake: IntakeContract,
-        git_snapshot: GitContextSnapshot,
         repository_root: Path,
-    ) -> EvidenceBundle | None:
-        """Build evidence bundle from Phase 2 outputs.
+        targets: tuple[str, ...],
+        evidence_records: list[EvidenceRecord],
+        excluded_records: list[EvidenceRecord],
+        limitations: list[str],
+        start_index: int,
+    ) -> int:
+        """Append full-file evidence for explicit, eligible targets.
 
-        Returns EvidenceBundle on success, None when evidence is insufficient.
+        The full target file is the authoritative review evidence. It is
+        collected before generic diff/excerpt sources so a broad unrelated
+        working-tree change cannot displace an explicitly requested file.
         """
-        # Check intake decision blocks analysis
-        if intake.decision in (IntakeDecision.CLARIFY, IntakeDecision.REJECT_UNSAFE_OR_UNSUPPORTED):
-            return None
+        index = start_index
+        for target_path in targets:
+            if index >= self._limits.max_evidence_records:
+                limitations.append("Evidence record limit reached")
+                break
 
-        # Check git context status
-        blocked_statuses = ("INTAKE_DECISION_BLOCKED", "NOT_A_GIT_REPOSITORY", "GIT_UNAVAILABLE")
-        if git_snapshot.status.value in blocked_statuses:
-            return None
+            target_file = repository_root / target_path
+            if not target_file.exists() or not target_file.is_file():
+                continue
 
-        evidence_records: list[EvidenceRecord] = []
-        excluded_records: list[EvidenceRecord] = []
-        limitations: list[str] = []
-        index = 0
+            if target_file.suffix.lower() not in _ELIGIBLE_EXTENSIONS:
+                excluded_records.append(
+                    EvidenceRecord(
+                        evidence_id=_make_evidence_id(index),
+                        source_kind=SourceKind.FILE_EXCERPT,
+                        relative_path=target_path,
+                        start_line=0,
+                        end_line=0,
+                        content="",
+                        content_sha256="",
+                        byte_count=0,
+                        selection_reason="ineligible_extension",
+                        provenance=f"excluded: {target_path}",
+                    )
+                )
+                index += 1
+                continue
 
-        # Source 1: Diff artifacts
+            try:
+                content = target_file.read_text(encoding="utf-8", errors="replace")
+            except (OSError, PermissionError):
+                continue
+
+            if not content:
+                continue
+
+            original_line_count = content.count("\n") + 1
+            content, truncated = _truncate_content(
+                content,
+                self._limits.max_single_evidence_bytes,
+            )
+            if truncated:
+                limitations.append(
+                    f"Explicit target {target_path} truncated to evidence byte limit"
+                )
+
+            evidence_records.append(
+                EvidenceRecord(
+                    evidence_id=_make_evidence_id(index),
+                    source_kind=SourceKind.EXPLICIT_PATH,
+                    relative_path=target_path,
+                    start_line=1,
+                    end_line=original_line_count,
+                    content=content,
+                    content_sha256=_sha256_text(content),
+                    byte_count=len(content.encode("utf-8")),
+                    selection_reason=(
+                        f"explicit_target_for_{intake.detected_task_type.value.lower()}"
+                    ),
+                    provenance=f"explicit file target: {target_path}",
+                )
+            )
+            index += 1
+
+        return index
+
+    def _append_diff_artifacts(
+        self,
+        *,
+        git_snapshot: GitContextSnapshot,
+        evidence_records: list[EvidenceRecord],
+        limitations: list[str],
+        start_index: int,
+    ) -> int:
+        """Append generic staged and unstaged diff artifacts."""
+        index = start_index
+
         if git_snapshot.staged_diff and git_snapshot.staged_diff.text:
             content, truncated = _truncate_content(
                 git_snapshot.staged_diff.text,
@@ -91,22 +179,27 @@ class EvidenceBundleBuilder:
             if truncated:
                 limitations.append("Staged diff truncated to evidence byte limit")
 
-            record = EvidenceRecord(
-                evidence_id=_make_evidence_id(index),
-                source_kind=SourceKind.DIFF_ARTIFACT,
-                relative_path="(staged diff)",
-                start_line=1,
-                end_line=content.count("\n") + 1,
-                content=content,
-                content_sha256=_sha256_text(content),
-                byte_count=len(content.encode("utf-8")),
-                selection_reason="staged_diff_in_scope",
-                provenance="git diff --cached",
+            evidence_records.append(
+                EvidenceRecord(
+                    evidence_id=_make_evidence_id(index),
+                    source_kind=SourceKind.DIFF_ARTIFACT,
+                    relative_path="(staged diff)",
+                    start_line=1,
+                    end_line=content.count("\n") + 1,
+                    content=content,
+                    content_sha256=_sha256_text(content),
+                    byte_count=len(content.encode("utf-8")),
+                    selection_reason="staged_diff_in_scope",
+                    provenance="git diff --cached",
+                )
             )
-            evidence_records.append(record)
             index += 1
 
-        if git_snapshot.unstaged_diff and git_snapshot.unstaged_diff.text:
+        if (
+            index < self._limits.max_evidence_records
+            and git_snapshot.unstaged_diff
+            and git_snapshot.unstaged_diff.text
+        ):
             content, truncated = _truncate_content(
                 git_snapshot.unstaged_diff.text,
                 self._limits.max_single_evidence_bytes,
@@ -114,91 +207,34 @@ class EvidenceBundleBuilder:
             if truncated:
                 limitations.append("Unstaged diff truncated to evidence byte limit")
 
-            record = EvidenceRecord(
-                evidence_id=_make_evidence_id(index),
-                source_kind=SourceKind.DIFF_ARTIFACT,
-                relative_path="(unstaged diff)",
-                start_line=1,
-                end_line=content.count("\n") + 1,
-                content=content,
-                content_sha256=_sha256_text(content),
-                byte_count=len(content.encode("utf-8")),
-                selection_reason="unstaged_diff_in_scope",
-                provenance="git diff",
+            evidence_records.append(
+                EvidenceRecord(
+                    evidence_id=_make_evidence_id(index),
+                    source_kind=SourceKind.DIFF_ARTIFACT,
+                    relative_path="(unstaged diff)",
+                    start_line=1,
+                    end_line=content.count("\n") + 1,
+                    content=content,
+                    content_sha256=_sha256_text(content),
+                    byte_count=len(content.encode("utf-8")),
+                    selection_reason="unstaged_diff_in_scope",
+                    provenance="git diff",
+                )
             )
-            evidence_records.append(record)
             index += 1
 
-        # Source 1b: Explicit file targets for CODE_REVIEW / BUG_DIAGNOSIS
-        scope = intake.resolved_scope
-        explicit_targets = ()
-        if hasattr(scope, "explicit_file_targets"):
-            explicit_targets = scope.explicit_file_targets
-        if explicit_targets and intake.detected_task_type in (
-            TaskType.CODE_REVIEW,
-            TaskType.BUG_DIAGNOSIS,
-        ):
-                for target_path in explicit_targets:
-                    if index >= self._limits.max_evidence_records:
-                        limitations.append("Evidence record limit reached")
-                        break
+        return index
 
-                    target_file = repository_root / target_path
-                    if not target_file.exists():
-                        continue
-
-                    if target_file.suffix.lower() not in _ELIGIBLE_EXTENSIONS:
-                        excluded_records.append(
-                            EvidenceRecord(
-                                evidence_id=_make_evidence_id(index),
-                                source_kind=SourceKind.FILE_EXCERPT,
-                                relative_path=target_path,
-                                start_line=0,
-                                end_line=0,
-                                content="",
-                                content_sha256="",
-                                byte_count=0,
-                                selection_reason="ineligible_extension",
-                                provenance=f"excluded: {target_path}",
-                            )
-                        )
-                        index += 1
-                        continue
-
-                    try:
-                        content = target_file.read_text(encoding="utf-8", errors="replace")
-                    except (OSError, PermissionError):
-                        continue
-
-                    if not content:
-                        continue
-
-                    line_count = content.count("\n") + 1
-                    content, truncated = _truncate_content(
-                        content,
-                        self._limits.max_single_evidence_bytes,
-                    )
-                    if truncated:
-                        limitations.append(
-                            f"Explicit target {target_path} truncated to evidence byte limit"
-                        )
-
-                    record = EvidenceRecord(
-                        evidence_id=_make_evidence_id(index),
-                        source_kind=SourceKind.EXPLICIT_PATH,
-                        relative_path=target_path,
-                        start_line=1,
-                        end_line=line_count,
-                        content=content,
-                        content_sha256=_sha256_text(content),
-                        byte_count=len(content.encode("utf-8")),
-                        selection_reason=f"explicit_target_for_{intake.detected_task_type.value.lower()}",
-                        provenance=f"explicit file target: {target_path}",
-                    )
-                    evidence_records.append(record)
-                    index += 1
-
-        # Source 2: File excerpts from changed files
+    def _append_file_excerpts(
+        self,
+        *,
+        git_snapshot: GitContextSnapshot,
+        evidence_records: list[EvidenceRecord],
+        limitations: list[str],
+        start_index: int,
+    ) -> int:
+        """Append bounded excerpts for generic diff-scoped requests."""
+        index = start_index
         for excerpt in git_snapshot.file_excerpts:
             if index >= self._limits.max_evidence_records:
                 limitations.append("Evidence record limit reached")
@@ -211,27 +247,101 @@ class EvidenceBundleBuilder:
             if truncated:
                 limitations.append(f"Excerpt {excerpt.relative_path} truncated")
 
-            record = EvidenceRecord(
-                evidence_id=_make_evidence_id(index),
-                source_kind=SourceKind.FILE_EXCERPT,
-                relative_path=excerpt.relative_path,
-                start_line=excerpt.start_line,
-                end_line=excerpt.end_line,
-                content=content,
-                content_sha256=_sha256_text(content),
-                byte_count=len(content.encode("utf-8")),
-                selection_reason=excerpt.source_reason,
-                provenance=(
-                    f"file excerpt: {excerpt.relative_path}:"
-                    f"{excerpt.start_line}-{excerpt.end_line}"
-                ),
+            evidence_records.append(
+                EvidenceRecord(
+                    evidence_id=_make_evidence_id(index),
+                    source_kind=SourceKind.FILE_EXCERPT,
+                    relative_path=excerpt.relative_path,
+                    start_line=excerpt.start_line,
+                    end_line=excerpt.end_line,
+                    content=content,
+                    content_sha256=_sha256_text(content),
+                    byte_count=len(content.encode("utf-8")),
+                    selection_reason=excerpt.source_reason,
+                    provenance=(
+                        f"file excerpt: {excerpt.relative_path}:"
+                        f"{excerpt.start_line}-{excerpt.end_line}"
+                    ),
+                )
             )
-            evidence_records.append(record)
             index += 1
 
-        # Source 3: Bounded repository search for CODEBASE_QUESTION
+        return index
+
+    def build(
+        self,
+        analysis_request_id: str,
+        intake: IntakeContract,
+        git_snapshot: GitContextSnapshot,
+        repository_root: Path,
+    ) -> EvidenceBundle | None:
+        """Build an evidence bundle from Phase 2 outputs.
+
+        Returns an EvidenceBundle on success, or None when no eligible evidence
+        can be collected. Explicit file targets dominate generic diff evidence.
+        """
+        if intake.decision in (
+            IntakeDecision.CLARIFY,
+            IntakeDecision.REJECT_UNSAFE_OR_UNSUPPORTED,
+        ):
+            return None
+
+        blocked_statuses = (
+            "INTAKE_DECISION_BLOCKED",
+            "NOT_A_GIT_REPOSITORY",
+            "GIT_UNAVAILABLE",
+        )
+        if git_snapshot.status.value in blocked_statuses:
+            return None
+
+        evidence_records: list[EvidenceRecord] = []
+        excluded_records: list[EvidenceRecord] = []
+        limitations: list[str] = []
+        index = 0
+
+        explicit_targets = self._explicit_targets(intake)
+        target_scoped_request = (
+            bool(explicit_targets)
+            and intake.detected_task_type in _EXPLICIT_TARGET_SCOPE_TASKS
+        )
+
+        if target_scoped_request:
+            index = self._append_explicit_target_records(
+                intake=intake,
+                repository_root=repository_root,
+                targets=explicit_targets,
+                evidence_records=evidence_records,
+                excluded_records=excluded_records,
+                limitations=limitations,
+                start_index=index,
+            )
+
+            if (
+                (git_snapshot.staged_diff and git_snapshot.staged_diff.text)
+                or (git_snapshot.unstaged_diff and git_snapshot.unstaged_diff.text)
+                or git_snapshot.file_excerpts
+            ):
+                limitations.append(
+                    "Generic working-tree evidence omitted because explicit file "
+                    "targets define the Phase 03 scope."
+                )
+        else:
+            index = self._append_diff_artifacts(
+                git_snapshot=git_snapshot,
+                evidence_records=evidence_records,
+                limitations=limitations,
+                start_index=index,
+            )
+            index = self._append_file_excerpts(
+                git_snapshot=git_snapshot,
+                evidence_records=evidence_records,
+                limitations=limitations,
+                start_index=index,
+            )
+
         if (
             intake.detected_task_type == TaskType.CODEBASE_QUESTION
+            and not target_scoped_request
             and index < self._limits.max_evidence_records
         ):
             search_records = self._bounded_search(
@@ -244,53 +354,73 @@ class EvidenceBundleBuilder:
             evidence_records.extend(search_records)
             index += len(search_records)
 
-        # Check total byte limit
-        total_bytes = sum(r.byte_count for r in evidence_records)
+        total_bytes = sum(record.byte_count for record in evidence_records)
         if total_bytes > self._limits.max_total_evidence_bytes:
             limitations.append(
                 f"Total evidence bytes ({total_bytes}) exceeds limit "
                 f"({self._limits.max_total_evidence_bytes}). Truncating."
             )
             evidence_records = self._truncate_to_byte_limit(
-                evidence_records, self._limits.max_total_evidence_bytes
+                evidence_records,
+                self._limits.max_total_evidence_bytes,
             )
-            total_bytes = sum(r.byte_count for r in evidence_records)
+            total_bytes = sum(record.byte_count for record in evidence_records)
 
-        # Check if we have any evidence
         if not evidence_records:
-            # If explicit file targets were specified but none were found,
-            # record this as a limitation
-            scope = intake.resolved_scope
-            explicit_targets = ()
-            if hasattr(scope, "explicit_file_targets"):
-                explicit_targets = scope.explicit_file_targets
             if explicit_targets:
-                    limitations.append(
-                        f"Explicit file targets {explicit_targets} yielded no eligible evidence"
-                    )
+                limitations.append(
+                    f"Explicit file targets {explicit_targets} yielded no eligible evidence"
+                )
             return None
 
-        # Build fingerprint string
-        fingerprint_str = (
-            f"{git_snapshot.repository_fingerprint.head_sha}:"
-            f"{git_snapshot.repository_fingerprint.staged_diff_hash}:"
-            f"{git_snapshot.repository_fingerprint.unstaged_diff_hash}"
+        bundle_content = "|".join(record.content_sha256 for record in evidence_records)
+        bundle_sha256 = _sha256_text(bundle_content)
+
+        # Cache validity must match the evidence authority boundary.  For a
+        # request that explicitly names file targets, the complete content of
+        # those target files is the authoritative scope.  An unrelated large
+        # working-tree diff may be truncated by Git collection, but it must not
+        # disable a cache keyed from the same explicit evidence.
+        explicit_target_truncated = any(
+            limitation.startswith("Explicit target ")
+            and "truncated to evidence byte limit" in limitation
+            for limitation in limitations
+        )
+        explicit_targets_complete = (
+            target_scoped_request
+            and len(evidence_records) == len(explicit_targets)
+            and not explicit_target_truncated
+            and all(
+                record.source_kind is SourceKind.EXPLICIT_PATH
+                for record in evidence_records
+            )
         )
 
-        # Compute bundle hash
-        bundle_content = "|".join(
-            r.content_sha256 for r in evidence_records
-        )
-        bundle_sha256 = _sha256_text(bundle_content)
+        if explicit_targets_complete:
+            scoped_identity = "|".join(
+                f"{record.relative_path}:{record.content_sha256}"
+                for record in evidence_records
+            )
+            fingerprint_str = f"explicit-scope-v1:{_sha256_text(scoped_identity)}"
+            fingerprint_complete_for_cache = True
+        else:
+            fingerprint_str = (
+                f"{git_snapshot.repository_fingerprint.head_sha}:"
+                f"{git_snapshot.repository_fingerprint.staged_diff_hash}:"
+                f"{git_snapshot.repository_fingerprint.unstaged_diff_hash}"
+            )
+            fingerprint_complete_for_cache = (
+                git_snapshot.repository_fingerprint.is_complete_for_cache
+            )
 
         return EvidenceBundle(
             analysis_request_id=analysis_request_id,
             intake_request_id=intake.request_id,
             repository_fingerprint=fingerprint_str,
-            repository_fingerprint_complete_for_cache=git_snapshot.repository_fingerprint.is_complete_for_cache,
+            repository_fingerprint_complete_for_cache=fingerprint_complete_for_cache,
             task_type=intake.detected_task_type.value,
             requested_output_language="auto",
-            evidence_bundle_schema_version="0.3.0",
+            evidence_bundle_schema_version="0.3.1",
             evidence_records=tuple(evidence_records),
             excluded_evidence_records=tuple(excluded_records),
             bundle_byte_count=total_bytes,

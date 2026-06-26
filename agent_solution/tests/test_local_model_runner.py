@@ -42,10 +42,23 @@ class TestRuntimeConfig:
         assert config.min_p == 0.1
         assert config.repeat_penalty == 1.0
 
-    def test_single_model_only(self) -> None:
+    def test_selected_single_model_profile(self, monkeypatch) -> None:
+        monkeypatch.delenv("STORE_FRONT_GUARD_MODEL_PATH", raising=False)
         config = get_runtime_config()
+        assert config.model_id == "qwen3.5-9b-ud-iq3-xxs"
+        assert config.model_filename == "Qwen3.5-9B-UD-IQ3_XXS.gguf"
+        assert "fallback" not in config.model_id
+
+    def test_model_identity_tracks_explicit_runtime_path(self, monkeypatch) -> None:
+        monkeypatch.setenv(
+            "STORE_FRONT_GUARD_MODEL_PATH",
+            r"C:\\models\\Qwen3.5-4B-UD-Q4_K_XL.gguf",
+        )
+
+        config = get_runtime_config()
+
         assert config.model_id == "qwen3.5-4b-ud-q4-k-xl"
-        assert "Qwen3.5-4B-UD-Q4_K_XL" in config.model_filename
+        assert config.model_filename == "Qwen3.5-4B-UD-Q4_K_XL.gguf"
 
     def test_generic_runtime_executable_config(self) -> None:
         """Generic runtime executable configuration is required and validated."""
@@ -407,7 +420,7 @@ class TestModelFileGitIgnore:
         from agent_solution.core.paths import project_root
 
         model_dir = project_root() / "agent_solution" / "model"
-        gguf_path = model_dir / "Qwen3.5-4B-UD-Q4_K_XL.gguf"
+        gguf_path = model_dir / "Qwen3.5-9B-UD-IQ3_XXS.gguf"
 
         # File should exist locally (user copied it)
         # But should be ignored by Git

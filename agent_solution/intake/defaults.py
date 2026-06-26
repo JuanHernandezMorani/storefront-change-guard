@@ -30,7 +30,7 @@ def resolve_safe_defaults(
     if task_type == TaskType.CODE_REVIEW:
         return _review_defaults(text, has_diff, has_working_tree, has_paths)
     if task_type == TaskType.CODEBASE_QUESTION:
-        return _codebase_question_defaults(text)
+        return _codebase_question_defaults(text, has_paths=has_paths)
     if task_type == TaskType.BUG_DIAGNOSIS:
         return _bug_diagnosis_defaults(text, has_paths)
     if task_type == TaskType.READINESS_ASSESSMENT:
@@ -105,7 +105,28 @@ def _review_defaults(
 
 def _codebase_question_defaults(
     text: str,
+    *,
+    has_paths: bool = False,
 ) -> tuple[SafeDefaults, tuple[Assumption, ...]]:
+    if has_paths:
+        defaults = SafeDefaults(
+            applied=True,
+            scope_source="explicit_file_paths",
+            scope_description="Bounded codebase question scoped to explicit file paths.",
+            rationale=(
+                "The user named a source file in a read-only codebase question. "
+                "Defaulting scope to that explicit file path."
+            ),
+        )
+        assumptions = (
+            Assumption(
+                field="scope",
+                value="explicit_file_paths",
+                confidence=ConfidenceLevel.MEDIUM,
+            ),
+        )
+        return defaults, assumptions
+
     defaults = SafeDefaults(
         applied=True,
         scope_source="bounded_repository_search",

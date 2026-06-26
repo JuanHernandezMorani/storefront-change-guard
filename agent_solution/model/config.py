@@ -1,20 +1,27 @@
 """Single-model runtime configuration.
 
-Provides the operational configuration for the Qwen3.5-4B model
-using llama.cpp CLI.  Profile reconciled with Test 1 successful
-runtime evidence.
+The product runs exactly one local GGUF model per process through llama.cpp.
+The selected Phase 03 runtime candidate is Qwen3.5-9B-UD-IQ3_XXS after the
+controlled structured-output Gate A comparison recorded in
+``docs/model-selection.md``.
+
+The model path may be overridden for controlled verification. The runtime never
+routes between models, retries with a fallback, or selects a model dynamically.
+The artifact identity is derived from the actual GGUF filename so reports cannot
+silently claim that a different model was used.
 """
 
 from __future__ import annotations
 
 import os
+import re
+from pathlib import Path
 
 from agent_solution.analysis.models import SingleModelRuntimeConfig
 from agent_solution.core.paths import project_root
 
-# Default model configuration
-_DEFAULT_MODEL_FILENAME = "Qwen3.5-4B-UD-Q4_K_XL.gguf"
-_DEFAULT_MODEL_ID = "qwen3.5-4b-ud-q4-k-xl"
+# Selected single-model product profile.
+_DEFAULT_MODEL_FILENAME = "Qwen3.5-9B-UD-IQ3_XXS.gguf"
 _DEFAULT_RUNTIME_BACKEND = "llama.cpp"
 _DEFAULT_RUNTIME_EXECUTABLE_NAME = "llama-cli"
 _DEFAULT_CONTEXT_LIMIT = 8192
@@ -34,52 +41,52 @@ _DEFAULT_KV_CACHE_TYPE_V = "q8_0"
 _DEFAULT_GPU_LAYERS = "auto"
 _DEFAULT_PRIORITY = 3
 _DEFAULT_PROMPT_SCHEMA_VERSION = "0.3.1"
-_DEFAULT_RUNTIME_PROFILE_VERSION = "0.3.2"
+_DEFAULT_RUNTIME_PROFILE_VERSION = "0.3.3"
 
 
 def _resolve_runtime_executable_path() -> str:
-    """Resolve the runtime executable path.
-
-    Priority:
-    1. STORE_FRONT_GUARD_LLAMA_EXECUTABLE environment variable
-    2. Empty string (will cause MODEL_UNAVAILABLE)
-
-    No auto-discovery from hardcoded paths. User must provide explicit path.
-    The selected executable is llama-cli, which has direct empirical local
-    evidence of successful one-shot operation with the Qwen model (Test 1).
-    """
+    """Return the explicitly configured local llama-cli path or an empty string."""
     return os.environ.get("STORE_FRONT_GUARD_LLAMA_EXECUTABLE", "")
 
 
 def _resolve_model_path() -> str:
-    """Resolve the model file path.
+    """Resolve the one selected model path for this process.
 
     Priority:
-    1. STORE_FRONT_GUARD_MODEL_PATH environment variable
-    2. Default relative path from repository root
+    1. ``STORE_FRONT_GUARD_MODEL_PATH`` for an explicit local deployment or a
+       controlled verification run.
+    2. The selected repository-relative product model path.
+
+    An override replaces the single model for that process; it does not create
+    fallback behavior or multi-model routing.
     """
     env_path = os.environ.get("STORE_FRONT_GUARD_MODEL_PATH", "")
     if env_path:
         return env_path
-
     return str(project_root() / "agent_solution" / "model" / _DEFAULT_MODEL_FILENAME)
 
 
-def get_runtime_config() -> SingleModelRuntimeConfig:
-    """Build the runtime configuration from environment and defaults.
+def _model_identity_from_path(model_path: str) -> tuple[str, str]:
+    """Return a stable, non-secret identity derived from the actual GGUF path.
 
-    Uses the Test 1 reconciled profile:
-    - llama-cli as the single selected executable
-    - --jinja enabled (llama-cli default, explicit for clarity)
-    - -st for single-turn non-interactive completion
-    - Prompt file transport (-f)
-    - Context limit (8192) with structured-output completion budget (2048)
-    - Reasoning mode handled by output envelope parser (not runtime flags)
+    Only the filename is persisted in runtime artifacts. Absolute local paths
+    remain private and are not used as model identifiers.
     """
+    filename = Path(model_path.replace("\\", "/")).name or _DEFAULT_MODEL_FILENAME
+    stem = Path(filename).stem.lower()
+    model_id = re.sub(r"[^a-z0-9.]+", "-", stem).strip("-")
+    return model_id, filename
+
+
+def get_runtime_config() -> SingleModelRuntimeConfig:
+    """Build the one-model runtime configuration from explicit local settings."""
+    model_path = _resolve_model_path()
+    model_id, model_filename = _model_identity_from_path(model_path)
+
     return SingleModelRuntimeConfig(
-        model_id=_DEFAULT_MODEL_ID,
-        model_filename=_DEFAULT_MODEL_FILENAME,
-        model_path=_resolve_model_path(),
+        model_id=model_id,
+        model_filename=model_filename,
+        model_path=model_path,
         runtime_backend=_DEFAULT_RUNTIME_BACKEND,
         runtime_executable_path=_resolve_runtime_executable_path(),
         runtime_executable_name=_DEFAULT_RUNTIME_EXECUTABLE_NAME,

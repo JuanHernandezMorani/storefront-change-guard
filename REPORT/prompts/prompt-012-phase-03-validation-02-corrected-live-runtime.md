@@ -62,7 +62,7 @@ STANDARD_SHIPPING_COST_CENTS = 700
 
 def calculate_shipping(subtotal_cents: int) -> int:
     """Calculate shipping cost based on subtotal.
-    
+
     If subtotal >= 5000 cents ($50.00), shipping is free.
     Otherwise, standard shipping of 700 cents ($7.00) applies.
     """

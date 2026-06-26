@@ -2,81 +2,88 @@
 
 ## Problem and selected scope
 
-Storefront Change Guard is a local-first prototype for e-commerce development
-workflows. The selected scope demonstrates three linked capabilities:
+Storefront Change Guard is a local-first prototype for e-commerce engineering
+workflows. It demonstrates three bounded capabilities:
 
 1. evidence-grounded code review;
-2. correction validation in an isolated worktree; and
-3. deterministic readiness decisions.
+2. validation of a supplied correction in an isolated Git worktree; and
+3. deterministic readiness evaluation from prior machine-readable artifacts.
 
-The challenge minimum is at least two capabilities. The primary demonstrable
-pair is review plus defect/correction validation; the policy layer provides a
-third bounded capability.
+The first two satisfy the primary challenge scope. The readiness policy provides
+an additional controlled decision layer.
 
-## Architecture
-
-The workflow separates advisory language-model reasoning from deterministic
-control:
+## Architecture and authority model
 
 ```text
 intake + Git evidence
-→ single local model analysis
-→ evidence and schema validation
-→ supplied patch in detached worktree
-→ fixed validation commands
-→ deterministic readiness policy
+-> one local structured analysis
+-> deterministic evidence validation
+-> supplied patch in detached worktree
+-> fixed validation commands
+-> deterministic readiness policy
 ```
 
-The original checkout is never automatically changed, committed, merged, or
-pushed. A model has no shell authority and cannot claim a test passed.
+The local model is advisory. It cannot run shell commands, apply a patch, alter
+the source checkout, commit, merge, push, or override quality gates. The source
+checkout stays unchanged during Phase 04 and Phase 05 live runs.
+
+## Recorded live evidence
+
+| Capability | Recorded result |
+|---|---|
+| Phase 03 review | Gate A returned `ANALYSIS_COMPLETED` with `qwen3.5-9b-ud-iq3-xxs`. |
+| Cache behavior | Gate B returned `ANALYSIS_CACHE_HIT` for the identical request and state. |
+| Spanish Q&A | Gate C accepted a file-scoped Spanish request and returned `ANALYSIS_COMPLETED`. |
+| Safe insufficiency | Gate D returned `INSUFFICIENT_EVIDENCE` for a nonexistent explicit target. |
+| Patch validation | Phase 04 returned `VALIDATED`; worktree creation, preflight, apply, compile, tests, lint, diff check, and cleanup passed. |
+| Readiness | Phase 05 returned `READY` under policy `phase-05.1.0`; it made no model invocation. |
+
+The Phase 03 model selection was empirical. The 4B Q4 candidate was faster and
+lighter in broad benchmarking but repeatedly produced incomplete JSON under the
+actual strict output contract. The selected 9B IQ3 candidate completed the same
+contract and passed the recorded live gates. This is a project-specific
+capability decision, not a broad benchmark claim.
 
 ## Trade-offs
 
-### Cost
+### Cost and privacy
 
-The default product path uses one local model and no hosted inference provider.
-The trade-off is local setup and hardware requirements. Model weights are not
-included in delivery because they are large runtime assets, not source code.
+The product path uses one local GGUF and no hosted inference provider. Source
+evidence remains local. Model weights are excluded from the delivery package.
 
-### Latency
+### Latency and operability
 
-Local inference can be slower than a hosted API, so Phase 03 bounds evidence,
-context, model calls, and expansion. Phase 04 and Phase 05 contain no model
-calls.
+Local inference is slower than some hosted alternatives. The design therefore
+bounds file scope, context size, model calls, and output validation. Phase 04
+and Phase 05 require no model call.
 
-### Privacy
+### Safety and autonomy
 
-Repository evidence remains local. Raw prompts, raw model output, and private
-reasoning are not stored in cache/session artifacts. The model runner exposes
-only sanitized model content to the strict envelope parser.
+The design rejects unrestricted automation. A correction must be supplied as a
+unified diff, validates only in a detached worktree, and is never merged by the
+prototype. Readiness means that the recorded gates passed; it is not merge or
+production authority.
 
-### Operability
+## Alternatives not selected
 
-The repository includes a phase-scoped test runner, explicit artifacts,
-allowlisted validation commands, and a delivery runbook. The trade-off is that
-safety constraints reject broad autonomous behavior instead of guessing.
+- Cloud-only inference: weaker privacy and recurring external dependency.
+- Multi-model routing, fallback, or retry chains: additional complexity without
+  evidence that it improves the focused demo.
+- Model-generated shell commands: unnecessary command-injection and mutation
+  risk.
+- Automatic merge after validation: outside the prototype's authority boundary.
 
-## Alternatives considered
+## Delivery evidence
 
-- **Cloud-only agent:** faster setup but weaker privacy and recurring cost.
-- **Unrestricted agent shell access:** more automation but unacceptable source
-  mutation and command-injection risk.
-- **Vector database / multi-agent routing:** not required for the challenge and
-  adds operational surface without improving the controlled demo.
-- **Automatic merge after patch validation:** deliberately excluded; readiness
-  is not merge authority.
-
-## Evidence and evaluation
-
-Phase 02 supplies bounded Git context. Phase 03 validates structured claims
-against evidence IDs. Phase 04 records patch safety, worktree execution and
-command status. Phase 05 applies fixed rules to those prior artifacts. The
-final demonstration shows both a positive controlled correction path and a
-negative safety path.
+- `docs/model-selection.md`
+- `REPORT/executions/run-015-phase-03-live-gates.md`
+- `artifacts/phase04-live/run-20260626-032234/`
+- `artifacts/phase05-live/run-20260626-033155/`
+- `AUDIT/phase-06-delivery-readiness.md`
 
 ## AI assistance disclosure
 
-AI tools were used as engineering assistants for analysis, drafting,
-implementation support, test design and review. The author retained design
-ownership, scope control, evidence standards, validation criteria, final
-runtime execution, debugging and delivery approval.
+AI tools assisted with exploration, drafting, implementation support, test
+design, and review. The author retained ownership of the scope, architecture,
+trust boundaries, acceptance criteria, runtime execution, debugging, and final
+delivery decision.

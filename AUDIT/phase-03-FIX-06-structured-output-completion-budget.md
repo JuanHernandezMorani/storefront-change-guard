@@ -11,9 +11,11 @@ Gate A reached the sanitized model response successfully:
 - the final payload began as a JSON object;
 - the final payload ended inside an unterminated JSON string with more opening than closing braces.
 
-The Python capture limit was not reached. The runtime profile completion limit was
-`1024`, which was insufficient for reasoning plus the required structured JSON
-schema.
+The Python capture limit was not reached. The runtime profile completion limit
+was increased from `1024` to `2048` as a measured budget correction, but the
+4B Q4 candidate still emitted incomplete JSON. The subsequent controlled
+candidate comparison selected the 9B IQ3 runtime for the remaining live gates;
+see `phase-03-FIX-07-runtime-model-identity-and-capability-selection.md`.
 
 ## Correction
 
@@ -25,6 +27,12 @@ schema.
 ## Acceptance criteria
 
 1. Deterministic validation remains green.
-2. Gate A returns `ANALYSIS_COMPLETED`.
+2. The selected product candidate returns `ANALYSIS_COMPLETED` in Gate A.
 3. Gate A produces non-empty evidence and valid structured output.
-4. Gates B-D remain blocked until Gate A passes.
+4. Historical sequencing condition: Gates B–D begin only after Gate A passes. Satisfied in the recorded live run.
+
+## Closeout
+
+The selected 9B IQ3 candidate completed Gate A and the full Gate A–D sequence.
+The completion-budget change remains part of the runtime contract; no fallback
+or retry path was introduced.

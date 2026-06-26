@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet("all", "phase00", "phase02", "phase03", "phase04", "phase05")]
     [string]$Phase = "all",
     [switch]$NoHygiene,

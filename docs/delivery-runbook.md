@@ -1,9 +1,10 @@
 # Delivery Runbook
 
-This runbook is the final deterministic checklist for the technical challenge.
-It is intentionally small enough to run under deadline pressure.
+This is the operational sequence for reproducing the demonstrated workflow on a
+Windows checkout. All delivery PowerShell scripts live under `scripts/`; no
+script outside that directory is required.
 
-## 1. Recreate the Python environment
+## 1. Bootstrap
 
 ```powershell
 py -3.11 -m venv .venv
@@ -12,57 +13,103 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-## 2. Configure the local product runtime
-
-Copy `.env.example` to `.env` and set only local paths:
+Copy `.env.example` to `.env` and set only local paths. Do not commit `.env` or
+model binaries.
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-The delivery ZIP excludes GGUF weights, `.env`, `.venv`, model caches, Node
-modules, raw runtime transcripts, and benchmark harness scripts. It includes
-model acquisition/runtime instructions and summarized benchmark evidence.
-
-## 3. Run all deterministic phase tests
+## 2. Deterministic validation
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\run_phase_validation.py --phase all
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\run_all_phase_validation.ps1 `
+  -Phase all
+
+git diff --check
+git diff --cached --check
 ```
 
-Or from PowerShell:
+The runner covers phase-scoped tests for Phases 00, 02, 03, 04, and 05, plus
+Ruff and `git diff --check`.
+
+## 3. Phase 03 live gates
+
+Provide the local `llama-cli` executable and one selected 9B GGUF. The default
+model location is `agent_solution/model/Qwen3.5-9B-UD-IQ3_XXS.gguf`.
 
 ```powershell
-.\scripts\run_all_phase_validation.ps1 -Phase all
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\run_phase03_live_gates.ps1 `
+  -LlamaCli "C:\path\to\llama-cli.exe" `
+  -Model ".\agent_solution\model\Qwen3.5-9B-UD-IQ3_XXS.gguf"
 ```
 
-The output identifies the failing group as `phase02`, `phase03`, `phase04`,
-`phase05`, `ruff`, or `git_diff_check`.
+Expected sequence:
 
-## 4. Phase 03 live gates
+| Gate | Expected result |
+|---|---|
+| A | `ANALYSIS_COMPLETED`, cache miss, selected model identity |
+| B | `ANALYSIS_CACHE_HIT`, cache hit, selected model identity |
+| C | `ANALYSIS_COMPLETED` for the Spanish file-scoped request |
+| D | `INSUFFICIENT_EVIDENCE` with no model identity |
 
-Run against the local Qwen3.5 product runtime in fresh state directories:
+The runner stops at the first failure and persists artifacts under
+`artifacts/phase03-live/` unless `-ArtifactRoot` is supplied.
 
-- Gate A: `Review shipping.py.`
-- Gate B: exact repeat using unchanged state/repository, expecting cache hit
-- Gate C: `¿Qué hace calculate_shipping en shipping.py?`
-- Gate D: review a nonexistent explicit target, expecting
-  `INSUFFICIENT_EVIDENCE` and zero model calls
+## 4. Phase 04 isolated patch validation
 
-Do not run B/C/D if the preceding gate fails. Preserve every state directory
-and report path for evidence.
+The delivery runner creates a controlled patch that replaces the root
+`shipping.py` magic number with `STANDARD_SHIPPING_CENTS` and adds behavior
+tests. It applies that patch only in a detached worktree.
 
-## 5. Phase 04 and Phase 05 demo
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\run_phase04_live_validation.ps1 `
+  -Repository $PWD `
+  -BaseRef HEAD
+```
 
-1. Save an explicit unified patch proposal as `artifacts/proposed-fix.diff`.
-2. Run `validate-patch` against `HEAD` in the controlled repository.
-3. Pass the resulting Phase 04 JSON artifact and Phase 03 JSON analysis output
-to `readiness`.
-4. Show that the source checkout did not change and every validation command
-ran in a detached worktree.
+Expected result: `VALIDATED`, all fixed commands pass, and the source checkout
+status remains unchanged. The generated artifact location is printed by the
+script.
 
-## 6. Final packaging check
+## 5. Phase 05 deterministic readiness
 
-Include source, tests, documentation, audit records, policies, example config,
-and summarized model-selection evidence. Exclude secrets, model weights,
-environments, caches, raw benchmark harnesses, and raw model transcripts.
+Use the Gate A output from Phase 03 and the validated Phase 04 artifact.
+
+```powershell
+$analysisArtifact = ".\artifacts\phase03-live\<run>\gate-a\stdout.json"
+$validationArtifact = ".\artifacts\phase04-live\<run>\phase04-<id>.validation.json"
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\run_phase05_live_decision.ps1 `
+  -Repository $PWD `
+  -AnalysisArtifact $analysisArtifact `
+  -PatchValidationArtifact $validationArtifact
+```
+
+Expected result: `READY` with policy version `phase-05.1.0`. The script
+canonicalizes JSON input encoding to UTF-8 without a BOM before it invokes the
+Python CLI. It does not start a model, apply a patch, execute test commands, or
+change tracked source files.
+
+## 6. Delivery-package contents
+
+Include:
+
+- source and tests;
+- `scripts/`, documentation, audits, reports, and policies;
+- selected successful machine-readable live artifacts when delivery evidence is
+  required.
+
+Exclude:
+
+- `.git`, `.venv`, cache directories, `node_modules`, generated package
+  metadata, GGUF weights, `.env`, credentials, raw model reasoning, and
+  benchmark harness scripts.
+
+The provided package contains the successful Phase 04 and Phase 05 artifacts
+and concise records for Phase 03. It intentionally excludes exploratory scripts
+outside `scripts/`.

@@ -14,7 +14,7 @@ def test_default_runtime_budget_supports_reasoning_then_structured_json(
     assert config.context_limit == 8192
     assert config.completion_limit == 2048
     assert config.timeout_seconds == 180
-    assert config.runtime_profile_version == "0.3.2"
+    assert config.runtime_profile_version == "0.3.3"
 
 
 def test_completion_budget_can_be_explicitly_overridden(monkeypatch) -> None:

@@ -9,7 +9,7 @@ export function useLocalStorage<T>(key: string, initialValue: T | (() => T)) {
             return (initialValue as () =>T) ()
         }else{
             return initialValue
-        }    
+        }
     })
 
     useEffect(()=>{

@@ -51,7 +51,7 @@ The following structure is used in this project to maintain a clean and modular 
 cart-system-typescript/
 ├── node_modules/
 ├── public/
-├── src/                         
+├── src/
 │   ├── assets/                  # Images, icons, and other static assets
 │   ├── components/              # Reusable UI components (Navbar, Footer, CartItem, etc.)
 │   ├── context/                 # React Context logic (e.g., ShoppingCartContext)
@@ -121,13 +121,13 @@ These screenshots illustrate how the system appears on desktop and mobile device
 
 ---
 
-### 👨‍💻 Created by: 
-**Ishan Madhusha**  
+### 👨‍💻 Created by:
+**Ishan Madhusha**
 GitHub: [PAIshanMadusha](https://github.com/PAIshanMadusha)
 
 Feel free to explore my work and get in touch if you'd like to collaborate! 🚀
 
 ---
 
-## 📝 License:  
+## 📝 License:
 This project is licensed under the MIT License : See the [LICENSE](LICENSE) file for details.

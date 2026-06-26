@@ -2,7 +2,7 @@
 
 ## Summary
 
-Implement a local, evidence-grounded semantic analysis layer using a single local Qwen3.5-4B-UD-Q4_K_XL model via llama.cpp CLI.
+Implement a local, evidence-grounded semantic analysis layer using a single local Qwen3.5-9B-UD-IQ3_XXS model via llama.cpp CLI.
 
 ## New Files to Create
 
@@ -142,3 +142,8 @@ Append Phase 03 entry.
 12. Documentation
 13. Audit records
 14. Validation
+
+
+## Historical plan note
+
+This file records the implementation plan. The completed Phase 03 runtime and final model decision are documented in `../../docs/model-selection.md` and `../../REPORT/executions/run-015-phase-03-live-gates.md`.

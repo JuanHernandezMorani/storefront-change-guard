@@ -1,49 +1,44 @@
 # Model Directory
 
-This directory contains model files for Phase 03 evidence-grounded analysis.
+This directory holds lightweight runtime metadata only. GGUF weights are ignored
+by Git and excluded from the delivery package.
 
-## Contents
+## Selected runtime
 
-- `Qwen3.5-4B-UD-Q4_K_XL.gguf` - Local model file (not tracked in Git)
-- `README.md` - This file
-- `model-manifest.example.json` - Example manifest structure
-- `.gitignore` - Git ignore rules for model binaries
+- **Model:** `Qwen3.5-9B-UD-IQ3_XXS.gguf`
+- **Runtime ID:** `qwen3.5-9b-ud-iq3-xxs`
+- **Runtime:** local llama.cpp `llama-cli`
+- **Selection basis:** the 9B IQ3 candidate completed the strict Phase 03
+  structured-output contract and recorded Gates A–D; the compared 4B Q4
+  candidate repeatedly produced incomplete JSON under the same Gate A contract.
 
-## Model File
+The runtime remains one-model only. An explicit
+`STORE_FRONT_GUARD_MODEL_PATH` replaces the active model for that process; it
+is not a fallback, retry, or routing mechanism.
 
-The model file is expected at:
-
-```text
-agent_solution/model/Qwen3.5-4B-UD-Q4_K_XL.gguf
-```
-
-This file is ignored by Git and must be obtained separately.
-
-## Configuration
-
-Model runtime is configured via environment variables:
+## Expected location
 
 ```text
-STORE_FRONT_GUARD_LLAMA_EXECUTABLE - Path to llama-completion executable (required)
-STORE_FRONT_GUARD_MODEL_PATH - Path to model file
-STORE_FRONT_GUARD_MODEL_TIMEOUT - Timeout in seconds
-STORE_FRONT_GUARD_MODEL_THREADS - Number of threads
+agent_solution/model/Qwen3.5-9B-UD-IQ3_XXS.gguf
 ```
 
-The runtime uses `llama-completion` with `-no-cnv` flag for non-interactive completion.
-No auto-discovery or fallback executables are used. The user must provide the explicit path.
-
-## Git Ignore
-
-Model binaries are ignored via `.gitignore`:
+A different local path can be supplied without exposing it in result artifacts:
 
 ```text
-*.gguf
-*.bin
-*.safetensors
-*.pt
-*.pth
-*.onnx
+STORE_FRONT_GUARD_MODEL_PATH=C:\local-models\Qwen3.5-9B-UD-IQ3_XXS.gguf
 ```
 
-Only lightweight metadata files are tracked.
+## Runtime configuration
+
+```text
+STORE_FRONT_GUARD_LLAMA_EXECUTABLE        # required: local llama-cli executable
+STORE_FRONT_GUARD_MODEL_PATH              # optional GGUF override
+STORE_FRONT_GUARD_MODEL_COMPLETION_LIMIT  # default: 2048
+STORE_FRONT_GUARD_MODEL_TIMEOUT           # default: 180 seconds
+STORE_FRONT_GUARD_MODEL_THREADS           # default: 12
+```
+
+The runner uses one local invocation with `--jinja`, `-st`, `-f`, and
+`--no-display-prompt`, with stdin disconnected. Raw reasoning is not retained.
+
+See `../../docs/model-selection.md` for scope and recorded evidence.

@@ -17,8 +17,10 @@ from agent_solution.intake.models import ConfidenceLevel, TaskType
 # ---------------------------------------------------------------------------
 
 _FILE_TARGET_PATTERN: re.Pattern[str] = re.compile(
-    r"(?:review|check|analyze|fix|explain|what does|qué hace)\s+"
-    r"(\S+?\.py)",
+    # Repository-relative Python path token anywhere in the request. The
+    # leading negative lookbehind rejects absolute paths and traversal forms,
+    # keeping extracted targets inside the repository authority boundary.
+    r"(?<![\w./-])((?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+\.py)\b",
     re.IGNORECASE,
 )
 
@@ -173,4 +175,4 @@ def extract_file_targets(text: str) -> tuple[str, ...]:
     Only extracts .py files for now (conservative approach).
     """
     matches = _FILE_TARGET_PATTERN.findall(text)
-    return tuple(matches)
+    return tuple(dict.fromkeys(matches))

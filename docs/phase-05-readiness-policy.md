@@ -2,29 +2,44 @@
 
 ## Purpose
 
-Phase 05 converts evidence that already exists into an auditable readiness
-outcome. It does not invoke an LLM, apply a patch, execute a test, or mutate a
-repository.
+Phase 05 converts already-existing machine-readable evidence into an auditable
+readiness result. It does not invoke an LLM, apply a patch, execute a test, or
+mutate a repository.
 
-Inputs are only:
+Inputs are limited to:
 
-1. a Phase 03 structured analysis JSON artifact; and
-2. a Phase 04 machine-readable patch-validation JSON artifact.
+1. one Phase 03 structured analysis JSON artifact; and
+2. one Phase 04 patch-validation JSON artifact.
 
-## Policy Rules
+## Policy rules
 
-A change is `READY` only when all of the following are true:
+`READY` requires all of the following:
 
 1. Phase 03 status is `ANALYSIS_COMPLETED` or `ANALYSIS_CACHE_HIT`.
-2. The Phase 03 artifact has a valid `findings` list.
-3. The analysis contains no `HIGH` or `CRITICAL` findings.
-4. Phase 04 artifact exists and has `status: VALIDATED`.
-5. Every recorded Phase 04 command has `exit_code: 0` and `timed_out: false`.
+2. Phase 03 has a valid findings list.
+3. No Phase 03 finding has `HIGH` or `CRITICAL` severity.
+4. Phase 04 exists and has status `VALIDATED`.
+5. Every recorded Phase 04 command has exit code `0` and no timeout.
 
-The policy returns `NOT_READY` for unresolved severe findings or a failed patch
-validation. It returns `INSUFFICIENT_EVIDENCE` when the required analysis or
-validation evidence is absent or incomplete. It returns `INVALID_INPUT` for an
-artifact that is not a JSON object or violates the expected minimal shape.
+The policy returns `NOT_READY`, `INSUFFICIENT_EVIDENCE`, or `INVALID_INPUT`
+when those conditions are not met.
+
+## Recorded live decision
+
+| Field | Recorded value |
+|---|---|
+| Decision ID | `phase05-5c01c0f109ec` |
+| Status | `READY` |
+| Policy version | `phase-05.1.0` |
+| Reason code | `ALL_REQUIRED_GATES_PASSED` |
+| Source checkout unchanged | `true` |
+| Model invocation | none |
+
+Artifact: `artifacts/phase05-live/run-20260626-033155/phase05-5c01c0f109ec.readiness.json`.
+
+The runner canonicalizes its supplied JSON inputs to UTF-8 without a BOM before
+calling the Python CLI. This preserves semantic content while avoiding
+PowerShell-specific encoding differences in copied artifacts.
 
 ## CLI
 
@@ -35,15 +50,5 @@ python -m agent_solution readiness `
   --artifact-dir .\artifacts
 ```
 
-The command emits and writes a JSON artifact containing:
-
-- a stable policy version;
-- SHA-256 fingerprints of both input artifacts;
-- `READY`, `NOT_READY`, `INSUFFICIENT_EVIDENCE`, or `INVALID_INPUT`;
-- structured reason codes and human-readable details.
-
-## Authority Boundary
-
-Phase 05 is intentionally conservative. A language model may have written the
-Phase 03 review, but it never controls the Phase 05 result. Policy conditions
-and Phase 04 command outcomes are the decision authority.
+The emitted artifact contains the policy version, hashes of both inputs, status,
+and reason codes. `READY` is not merge, deployment, or production authority.

@@ -180,4 +180,3 @@ The selected storefront is an appropriate base for the prototype because it is s
 The baseline does contain one lint failure and no automated tests. These limitations will be corrected deliberately in the next phase before the controlled candidate change is introduced.
 
 The next phase will prepare a clean, testable storefront baseline with documented checkout behavior. The review agent will then be implemented against a realistic candidate change that violates that documented behavior.
-

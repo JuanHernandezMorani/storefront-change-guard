@@ -520,6 +520,11 @@ def _resolve_scope(
                 description="Bounded file review of explicit paths.",
                 explicit_file_targets=explicit_file_targets,
             )
+    if task_type == TaskType.CODEBASE_QUESTION and explicit_file_targets:
+        return ResolvedScope(
+            description="Bounded codebase question scoped to explicit file paths.",
+            explicit_file_targets=explicit_file_targets,
+        )
     if task_type == TaskType.CODEBASE_QUESTION:
         return ResolvedScope(
             description="Bounded repository search.",

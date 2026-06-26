@@ -14,11 +14,11 @@ Describe the task requested without retaining credentials, private source dumps,
 
 ## Input context supplied
 
-- 
+-
 
 ## Output summary
 
-- 
+-
 
 ## Author review and disposition
 
@@ -27,8 +27,8 @@ Describe the task requested without retaining credentials, private source dumps,
 
 ## Resulting project change or decision
 
-- 
+-
 
 ## Validation performed
 
-- 
+-

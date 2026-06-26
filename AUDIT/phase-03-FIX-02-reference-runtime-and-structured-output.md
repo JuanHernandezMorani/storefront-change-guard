@@ -167,7 +167,7 @@ _REASONING_CLOSE_TAG = "</think>"
 
 def extract_reasoning_envelope(raw_output: str) -> tuple[dict | None, ModelEnvelopeDiagnostics]:
     """Extract JSON from optional reasoning envelope.
-    
+
     Shape A: optional whitespace + one JSON object + optional whitespace
     Shape B: optional whitespace + <think> + reasoning + </think> + JSON
     """

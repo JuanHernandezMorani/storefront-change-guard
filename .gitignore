@@ -90,3 +90,4 @@ agent_solution/model/*.safetensors
 agent_solution/model/*.pt
 agent_solution/model/*.pth
 agent_solution/model/*.onnx
+*.egg-info/

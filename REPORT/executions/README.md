@@ -1,13 +1,13 @@
 # Execution Reports
 
-Use this directory for summarized or normalized reports from named implementation, validation, and demo runs.
+This directory contains concise, normalized records from named implementation,
+validation, and delivery runs. Product runtime JSON belongs under `artifacts/`.
 
-Naming convention:
+Current delivery records:
 
-```text
-run-001-baseline-checks.md
-run-002-buggy-change-review.json
-run-003-proposed-patch-validation.md
-```
-
-Raw system output that is part of the prototype's runtime product belongs under `artifacts/<run-id>/`.
+- `run-014-phase-03-model-selection.md` — controlled model-selection evidence.
+- `run-015-phase-03-live-gates.md` — completed Phase 03 A–D live gates.
+- `run-016-phase-04-live-validation.md` — detached-worktree validation result.
+- `run-017-phase-05-live-readiness.md` — deterministic readiness result.
+- `run-018-phase-06-package-verification.md` — final package checks and
+  delivery inventory review.

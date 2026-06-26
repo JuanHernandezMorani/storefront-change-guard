@@ -678,3 +678,32 @@ readiness run pending
 
 Policy-driven `READY` / `NOT_READY` / `INSUFFICIENT_EVIDENCE` decisions from
 Phase 03 and Phase 04 JSON artifacts only.
+
+
+---
+
+## Current Status Snapshot — 2026-06-26
+
+This entry supplements historical records without changing them.
+
+| Work Item | Current State |
+|---|---|
+| Phase-03-FIX-03 through FIX-10 | Accepted; runtime boundary, explicit scope, cache eligibility, and Spanish file-scope corrections are covered by deterministic tests and the completed live gate sequence. |
+| Phase-03 | Gates A–D passed with `Qwen3.5-9B-UD-IQ3_XXS.gguf`. |
+| Phase-04 | Controlled detached-worktree validation completed with `VALIDATED` and unchanged source checkout. |
+| Phase-05 | Real-artifact deterministic decision completed with `READY` and unchanged source checkout. |
+| Phase-06 | Delivery documentation, tracked runners, evidence records, and package boundaries consolidated. |
+
+### Phase-03-FIX-07 — Runtime Model Identity and Capability-Based Selection
+
+- **Type:** Fix / selection correction
+- **Origin:** Controlled Gate A comparison
+- **Status:** Accepted
+- **Root cause:** Configuration persisted a hardcoded 4B model identity even
+  when an explicit GGUF override selected another model. The initial 4B Q4
+  choice also did not meet the strict structured-output contract.
+- **Resolution:** Runtime identity is derived from the active model filename.
+  `Qwen3.5-9B-UD-IQ3_XXS.gguf` is the single selected product candidate because
+  it completed Gate A and the full Gate A–D sequence under the controlled
+  pipeline in which the 4B Q4 candidate repeatedly emitted incomplete JSON.
+- **Audit link:** [phase-03-FIX-07-runtime-model-identity-and-capability-selection.md](phase-03-FIX-07-runtime-model-identity-and-capability-selection.md)

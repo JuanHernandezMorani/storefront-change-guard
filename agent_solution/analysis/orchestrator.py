@@ -29,6 +29,7 @@ from agent_solution.analysis.models import (
     GroundedAnalysisResult,
     ModelEnvelopeDiagnostics,
     Phase3Limits,
+    SourceKind,
 )
 from agent_solution.analysis.session import SessionStateStore
 from agent_solution.analysis.validator import validate_model_output
@@ -99,6 +100,34 @@ def _compute_context_budget(
         "total_required": total_required,
         "budget_status": budget_status,
     }
+
+
+def _evidence_retention_rank(record: EvidenceRecord) -> int:
+    """Return deterministic retention priority during context reduction.
+
+    A user-named file is the highest-priority evidence. Generic diff artifacts
+    are the first records removed because they can be broad and unrelated to a
+    file-scoped review request. This rank does not expand evidence; it only
+    controls deterministic removal order when the context budget is exceeded.
+    """
+    ranks = {
+        SourceKind.DIFF_ARTIFACT: 0,
+        SourceKind.FILE_EXCERPT: 1,
+        SourceKind.SEARCH_RESULT: 2,
+        SourceKind.EXPLICIT_PATH: 3,
+    }
+    return ranks[record.source_kind]
+
+
+def _remove_lowest_priority_evidence(
+    records: list[EvidenceRecord],
+) -> EvidenceRecord:
+    """Remove one least-preferred record, breaking ties by later position."""
+    lowest_rank = min(_evidence_retention_rank(record) for record in records)
+    for index in range(len(records) - 1, -1, -1):
+        if _evidence_retention_rank(records[index]) == lowest_rank:
+            return records.pop(index)
+    raise RuntimeError("Evidence removal requires at least one record.")
 
 
 def _build_system_prompt(
@@ -421,7 +450,7 @@ class AnalysisOrchestrator:
             )
 
         # Step 4: Check fingerprint completeness for cache
-        fingerprint_complete = git_snapshot.repository_fingerprint.is_complete_for_cache
+        fingerprint_complete = evidence_bundle.repository_fingerprint_complete_for_cache
 
         # Step 5: Check cache
         if not self._no_cache and fingerprint_complete:
@@ -440,8 +469,11 @@ class AnalysisOrchestrator:
                     next_safe_action=cached.next_safe_action,
                     phase_limitations=cached.phase_limitations,
                     evidence_bundle_sha256=evidence_bundle.bundle_sha256,
+                    model_id=cached.model_id,
+                    runtime_profile_version=cached.runtime_profile_version,
+                    prompt_schema_version=cached.prompt_schema_version,
                     cache_hit=True,
-                    output_language=output_language,
+                    output_language=resolved_language,
                 )
                 return cached
 
@@ -475,21 +507,30 @@ class AnalysisOrchestrator:
 
         context_budget_limitations: list[str] = []
         retained_records = list(evidence_bundle.evidence_records)
-        excluded_records: list[EvidenceRecord] = list(evidence_bundle.excluded_evidence_records)
+        excluded_records: list[EvidenceRecord] = list(
+            evidence_bundle.excluded_evidence_records
+        )
+        last_nonempty_budget = budget
 
         if budget["budget_status"] == "EXCEEDED":
-            # Deterministically reduce evidence
+            # Deterministically reduce the least relevant evidence first.
+            # Explicit paths are protected until every broader source has been
+            # removed. A model call with no evidence remains forbidden.
             while retained_records and budget["budget_status"] == "EXCEEDED":
-                removed = retained_records.pop()
+                last_nonempty_budget = budget
+                removed = _remove_lowest_priority_evidence(retained_records)
                 excluded_records.append(removed)
                 context_budget_limitations.append(
                     f"Evidence {removed.evidence_id} excluded to fit context budget"
                 )
-                # Rebuild prompt without removed evidence
+
                 reduced_evidence_text = "\n\n".join(
-                    f"[{r.evidence_id}] {r.provenance}:\n{r.content}" for r in retained_records
+                    f"[{record.evidence_id}] {record.provenance}:\n{record.content}"
+                    for record in retained_records
                 )
-                reduced_ids = ", ".join(r.evidence_id for r in retained_records)
+                reduced_ids = ", ".join(
+                    record.evidence_id for record in retained_records
+                )
                 reduced_user = f"""Task: {intake.detected_task_type.value}
 Request: {intake.original_request}
 Available evidence IDs: [{reduced_ids}]
@@ -507,24 +548,23 @@ Output exactly one JSON object matching the schema.
                     configured_context_limit=config.context_limit,
                 )
 
-            # A model call with an empty evidence bundle is forbidden.  This
-            # can happen when a large working-tree diff is reduced away to fit
-            # the configured local context window.  Do not fall through to
-            # prompt execution merely because the prompt shell itself fits.
             if not retained_records:
                 return GroundedAnalysisResult(
                     analysis_request_id=analysis_request_id,
                     intake_request_id=intake.request_id,
                     status=AnalysisStatus.INSUFFICIENT_EVIDENCE,
-                    analysis_mode=_map_task_type_to_mode(intake.detected_task_type.value),
+                    analysis_mode=_map_task_type_to_mode(
+                        intake.detected_task_type.value
+                    ),
                     summary=(
-                        "All evidence records were excluded to fit the configured "
+                        "No non-empty evidence bundle fits the configured "
                         "context budget; no model call was made."
                     ),
                     phase_limitations=(
-                        f"Context budget: {budget['total_required']} tokens required, "
-                        f"{budget['configured_context_limit']} configured after "
-                        "bounded evidence reduction.",
+                        "Minimum non-empty evidence bundle required "
+                        f"{last_nonempty_budget['total_required']} tokens, "
+                        f"{last_nonempty_budget['configured_context_limit']} "
+                        "configured.",
                         "No non-empty evidence bundle fits available context.",
                     ),
                     evidence_bundle_sha256=evidence_bundle.bundle_sha256,
@@ -538,7 +578,9 @@ Output exactly one JSON object matching the schema.
                     analysis_request_id=analysis_request_id,
                     intake_request_id=intake.request_id,
                     status=AnalysisStatus.INSUFFICIENT_EVIDENCE,
-                    analysis_mode=_map_task_type_to_mode(intake.detected_task_type.value),
+                    analysis_mode=_map_task_type_to_mode(
+                        intake.detected_task_type.value
+                    ),
                     summary="Context budget exceeded even after evidence reduction.",
                     phase_limitations=(
                         f"Context budget: {budget['total_required']} tokens required, "

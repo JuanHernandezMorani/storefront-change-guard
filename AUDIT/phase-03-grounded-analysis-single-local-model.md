@@ -362,3 +362,17 @@ A later independent review will determine whether Phase 03 is accepted.
 - `git diff --check` — PASS
 - `git diff --cached --check` — PASS
 - `git check-ignore -v agent_solution/model/Qwen3.5-4B-UD-Q4_K_XL.gguf` — PASS
+
+
+---
+
+## Supersession Note — 2026-06-26
+
+The model selection recorded above was superseded **for the delivered Phase 03
+structured-output runtime contract**. The original 4B Q4 candidate remained a
+valid benchmark candidate, but repeated real Gate A runs produced incomplete
+JSON after the deterministic CLI boundary had been corrected. A controlled run
+with `Qwen3.5-9B-UD-IQ3_XXS.gguf` completed Gate A successfully. The product
+now selects that 9B IQ3 candidate as one model only for the remaining live
+gates. See `phase-03-FIX-07-runtime-model-identity-and-capability-selection.md`
+and `../docs/model-selection.md`.

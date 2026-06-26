@@ -36,7 +36,16 @@ The runner test suite covers known wrapper stripping, trailer stripping,
 thinking-tag normalization, strict rejection of arbitrary prose, and rejection
 of incomplete/repeated observed thinking tags.
 
-## Required live follow-up
+## Historical live follow-up requirement
 
-Retry only Gate A in a fresh state directory. Proceed to Gates B–D only after
-Gate A produces schema-valid `ANALYSIS_COMPLETED` with non-empty evidence.
+The required sequence was: rerun Gate A in a fresh state directory, then
+continue to Gates B–D only after Gate A returned schema-valid
+`ANALYSIS_COMPLETED` with non-empty evidence. That sequence was completed;
+see the closeout note below.
+
+## Closeout
+
+The targeted live validation subsequently completed. The Phase 03 Gate A–D
+sequence passed with the selected 9B IQ3 runtime. This record remains limited
+to the deterministic wrapper-sanitization correction; full live results are in
+`REPORT/executions/run-015-phase-03-live-gates.md`.
