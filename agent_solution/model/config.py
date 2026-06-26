@@ -18,8 +18,8 @@ _DEFAULT_MODEL_ID = "qwen3.5-4b-ud-q4-k-xl"
 _DEFAULT_RUNTIME_BACKEND = "llama.cpp"
 _DEFAULT_RUNTIME_EXECUTABLE_NAME = "llama-cli"
 _DEFAULT_CONTEXT_LIMIT = 8192
-_DEFAULT_COMPLETION_LIMIT = 1024
-_DEFAULT_TIMEOUT_SECONDS = 120
+_DEFAULT_COMPLETION_LIMIT = 2048
+_DEFAULT_TIMEOUT_SECONDS = 180
 _DEFAULT_THREAD_COUNT = 12
 _DEFAULT_THREAD_BATCH_COUNT = 12
 _DEFAULT_BATCH_SIZE = 1024
@@ -34,7 +34,7 @@ _DEFAULT_KV_CACHE_TYPE_V = "q8_0"
 _DEFAULT_GPU_LAYERS = "auto"
 _DEFAULT_PRIORITY = 3
 _DEFAULT_PROMPT_SCHEMA_VERSION = "0.3.1"
-_DEFAULT_RUNTIME_PROFILE_VERSION = "0.3.1"
+_DEFAULT_RUNTIME_PROFILE_VERSION = "0.3.2"
 
 
 def _resolve_runtime_executable_path() -> str:
@@ -73,7 +73,7 @@ def get_runtime_config() -> SingleModelRuntimeConfig:
     - --jinja enabled (llama-cli default, explicit for clarity)
     - -st for single-turn non-interactive completion
     - Prompt file transport (-f)
-    - Conservative context limit (8192) with completion budget (1024)
+    - Context limit (8192) with structured-output completion budget (2048)
     - Reasoning mode handled by output envelope parser (not runtime flags)
     """
     return SingleModelRuntimeConfig(
@@ -84,7 +84,12 @@ def get_runtime_config() -> SingleModelRuntimeConfig:
         runtime_executable_path=_resolve_runtime_executable_path(),
         runtime_executable_name=_DEFAULT_RUNTIME_EXECUTABLE_NAME,
         context_limit=_DEFAULT_CONTEXT_LIMIT,
-        completion_limit=_DEFAULT_COMPLETION_LIMIT,
+        completion_limit=int(
+            os.environ.get(
+                "STORE_FRONT_GUARD_MODEL_COMPLETION_LIMIT",
+                _DEFAULT_COMPLETION_LIMIT,
+            )
+        ),
         timeout_seconds=int(
             os.environ.get("STORE_FRONT_GUARD_MODEL_TIMEOUT", _DEFAULT_TIMEOUT_SECONDS)
         ),
