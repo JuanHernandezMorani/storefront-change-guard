@@ -1,0 +1,26 @@
+{
+    "phase":  "phase05-live",
+    "status":  "READY",
+    "cli_exit_code":  0,
+    "policy_version":  "phase-05.1.0",
+    "decision_artifact":  "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase05-live\\run-20260626-033155\\phase05-5c01c0f109ec.readiness.json",
+    "analysis_input":  {
+                           "source_path":  "C:\\Users\\braia\\AppData\\Local\\Temp\\storefront-change-guard-phase03-live-gates-20260626-031530\\gate-a\\stdout.json",
+                           "canonical_utf8_copy":  "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase05-live\\run-20260626-033155\\inputs\\phase03-analysis.utf8.json",
+                           "status":  "ANALYSIS_COMPLETED",
+                           "model_id":  "qwen3.5-9b-ud-iq3-xxs",
+                           "evidence_bundle_sha256":  "8f9b4b28b91bce19bc2b070004ba3078922209d251ff12b00b4fa257e34d72a2"
+                       },
+    "patch_validation_input":  {
+                                   "source_path":  "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase04-live\\run-20260626-032234\\phase04-f90b2e47f8c5.validation.json",
+                                   "canonical_utf8_copy":  "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase05-live\\run-20260626-033155\\inputs\\phase04-validation.utf8.json",
+                                   "status":  "VALIDATED",
+                                   "run_id":  "phase04-f90b2e47f8c5",
+                                   "command_count":  8
+                               },
+    "decision_reason_codes":  [
+                                  "ALL_REQUIRED_GATES_PASSED"
+                              ],
+    "source_checkout_unchanged":  true,
+    "model_invocation":  "none; deterministic readiness policy only"
+}

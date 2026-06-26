@@ -1,0 +1,89 @@
+{
+  "analysis_request_id": "ar-cli-request",
+  "intake_request_id": "cli-request",
+  "status": "ANALYSIS_COMPLETED",
+  "analysis_mode": "CODE_REVIEW",
+  "summary": "Review of shipping.py reveals a simple shipping calculation function with a free shipping threshold.",
+  "claims": [
+    {
+      "claim_id": "C1",
+      "text": "File shipping.py contains a calculate_shipping function with FREE_SHIPPING_THRESHOLD_CENTS constant",
+      "claim_status": "VERIFIED",
+      "evidence_ids": [
+        "E1"
+      ],
+      "inference_basis": null,
+      "limitations": []
+    },
+    {
+      "claim_id": "C2",
+      "text": "Function returns 0 cents shipping when subtotal meets threshold, otherwise returns 700 cents",
+      "claim_status": "VERIFIED",
+      "evidence_ids": [
+        "E1"
+      ],
+      "inference_basis": null,
+      "limitations": []
+    },
+    {
+      "claim_id": "C3",
+      "text": "No input validation or error handling present in the function",
+      "claim_status": "INFERRED",
+      "evidence_ids": [
+        "E1"
+      ],
+      "inference_basis": "Function signature shows int parameter with no validation logic",
+      "limitations": [
+        "Cannot verify edge cases without test evidence"
+      ]
+    },
+    {
+      "claim_id": "C4",
+      "text": "Hardcoded shipping rate of 700 cents exists",
+      "claim_status": "VERIFIED",
+      "evidence_ids": [
+        "E1"
+      ],
+      "inference_basis": null,
+      "limitations": []
+    }
+  ],
+  "findings": [
+    {
+      "title": "Missing Input Validation",
+      "severity": "MEDIUM",
+      "claim_ids": [
+        "C3"
+      ],
+      "description": "The calculate_shipping function accepts subtotal_cents as int but does not validate input range or type",
+      "impact": "Could cause unexpected behavior if invalid values are passed",
+      "recommendation": "Add input validation to ensure subtotal_cents is non-negative integer",
+      "limitations": [
+        "Cannot verify current validation behavior without test evidence"
+      ]
+    },
+    {
+      "title": "Hardcoded Shipping Rate",
+      "severity": "LOW",
+      "claim_ids": [
+        "C4"
+      ],
+      "description": "Shipping cost of 700 cents is hardcoded rather than configurable",
+      "impact": "Changes require code modification rather than configuration",
+      "recommendation": "Consider making shipping rate configurable via constant or parameter",
+      "limitations": []
+    }
+  ],
+  "recommendations": [],
+  "next_safe_action": "Add input validation for subtotal_cents parameter and consider making shipping rate configurable",
+  "phase_limitations": [
+    "Cannot verify test coverage or runtime behavior without additional evidence"
+  ],
+  "evidence_bundle_sha256": "8f9b4b28b91bce19bc2b070004ba3078922209d251ff12b00b4fa257e34d72a2",
+  "model_id": "qwen3.5-9b-ud-iq3-xxs",
+  "runtime_profile_version": "0.3.3",
+  "prompt_schema_version": "0.3.1",
+  "cache_hit": false,
+  "output_language": "en",
+  "created_at_utc": "2026-06-26T06:15:49.661466+00:00"
+}

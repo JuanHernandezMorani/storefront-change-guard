@@ -63,8 +63,8 @@ dist-ssr
 # Runtime data and temporary validation worktrees
 artifacts/*
 !artifacts/.gitkeep
-!artifacts/phase04-live/*
-!artifacts/phase05-live/*
+!artifacts/phase04-live/
+!artifacts/phase05-live/
 .worktrees/
 tmp/
 temp/

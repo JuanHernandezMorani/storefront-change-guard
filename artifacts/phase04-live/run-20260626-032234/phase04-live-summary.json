@@ -1,0 +1,58 @@
+{
+    "phase":  "phase04-live",
+    "base_ref":  "618851b4ec4ef5787fba1caf1b08f1aa7cbd415b",
+    "status":  "VALIDATED",
+    "cli_exit_code":  0,
+    "validation_artifact":  "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase04-live\\run-20260626-032234\\phase04-f90b2e47f8c5.validation.json",
+    "source_checkout_unchanged":  true,
+    "command_results":  [
+                            {
+                                "name":  "worktree_create",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "patch_apply_check",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "patch_apply",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "compileall",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "pytest",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "ruff",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "git_diff_check",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            },
+                            {
+                                "name":  "worktree_cleanup",
+                                "exit_code":  0,
+                                "timed_out":  false,
+                                "passed":  true
+                            }
+                        ]
+}
