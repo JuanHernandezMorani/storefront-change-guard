@@ -120,6 +120,39 @@ def _strip_known_cli_prefix(raw_stdout: str, prompt: str) -> tuple[str, tuple[st
     return raw_stdout[response_start:], ("LLAMA_CLI_BANNER_AND_PROMPT_ECHO_STRIPPED",)
 
 
+def _strip_observed_cli_wrapper_to_thinking_marker(
+    raw_stdout: str,
+) -> tuple[str, tuple[str, ...]]:
+    """Strip the observed Jinja-rendered wrapper only to one model marker.
+
+    Some llama-cli builds echo a chat-template-rendered version of the prompt,
+    not the source prompt stored in the temporary file.  Exact prompt matching
+    is therefore unavailable in that path.  This fallback remains narrow: it
+    activates only for the known loading banner, a command-prompt echo marker,
+    and exactly one observed model-generated ``[Start thinking]`` marker.
+
+    It does not search for JSON or discard arbitrary prose.  Missing, repeated,
+    or unframed markers are preserved for the strict envelope parser to reject.
+    """
+    if not raw_stdout.lstrip().startswith("Loading model..."):
+        return raw_stdout, ()
+
+    marker_count = raw_stdout.count(_START_THINKING)
+    if marker_count != 1:
+        return raw_stdout, ()
+
+    marker_index = raw_stdout.find(_START_THINKING)
+    prefix = raw_stdout[:marker_index]
+    has_prompt_echo = "\n> " in prefix or prefix.lstrip().startswith("> ")
+    if not has_prompt_echo:
+        return raw_stdout, ()
+
+    return (
+        raw_stdout[marker_index:],
+        ("LLAMA_CLI_BANNER_TO_OBSERVED_THINKING_MARKER_STRIPPED",),
+    )
+
+
 def _strip_known_cli_trailer(candidate: str) -> tuple[str, tuple[str, ...]]:
     """Remove only llama-cli's terminal performance/exiting trailer."""
     match = _TRAILER_PATTERN.search(candidate)
@@ -162,6 +195,11 @@ def sanitize_llama_cli_stdout(raw_stdout: str, prompt: str) -> tuple[str, tuple[
     prose remains and will be rejected by `extract_reasoning_envelope`.
     """
     candidate, categories = _strip_known_cli_prefix(raw_stdout, prompt)
+    if not categories:
+        candidate, wrapper_categories = _strip_observed_cli_wrapper_to_thinking_marker(
+            raw_stdout
+        )
+        categories = categories + wrapper_categories
     candidate, trailer_categories = _strip_known_cli_trailer(candidate)
     candidate, thinking_categories = _normalize_observed_thinking_tags(candidate)
     return candidate.strip(), categories + trailer_categories + thinking_categories

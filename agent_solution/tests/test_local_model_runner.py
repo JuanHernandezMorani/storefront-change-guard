@@ -489,6 +489,44 @@ class TestLlamaCliStdoutSanitization:
             "LLAMA_CLI_PERFORMANCE_TRAILER_STRIPPED",
         )
 
+    def test_jinja_rendered_prompt_echo_is_stripped_to_one_observed_thinking_marker(
+        self,
+    ) -> None:
+        """A rendered chat template need not equal the source prompt file."""
+        prompt = "Source prompt with JSON instructions."
+        raw = (
+            "Loading model...\n\nASCII ART\navailable commands:\n  /exit\n\n> "
+            "<|im_start|>system\nRendered template wrapper\n<|im_end|>\n"
+            "<|im_start|>assistant\n"
+            "[Start thinking]\nprivate reasoning\n[End thinking]\n"
+            + self._json_payload()
+            + "\n[ Prompt: 1 t/s ]\nExiting..."
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized.startswith("<think>\nprivate reasoning\n</think>")
+        assert sanitized.endswith(self._json_payload())
+        assert categories == (
+            "LLAMA_CLI_BANNER_TO_OBSERVED_THINKING_MARKER_STRIPPED",
+            "LLAMA_CLI_PERFORMANCE_TRAILER_STRIPPED",
+            "OBSERVED_THINKING_TAGS_NORMALIZED",
+        )
+
+    def test_jinja_wrapper_fallback_rejects_repeated_thinking_markers(self) -> None:
+        prompt = "Source prompt"
+        raw = (
+            "Loading model...\n> <|im_start|>system\nRendered\n"
+            "[Start thinking]first[End thinking]\n"
+            "[Start thinking]second[End thinking]\n"
+            + self._json_payload()
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized == raw
+        assert categories == ()
+
     def test_observed_thinking_tags_normalize_only_at_leading_edge(self) -> None:
         prompt = "System prompt"
         raw = (
