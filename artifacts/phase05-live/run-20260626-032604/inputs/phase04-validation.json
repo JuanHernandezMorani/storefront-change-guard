@@ -1,0 +1,152 @@
+{
+  "artifact_path": "",
+  "base_ref": "618851b4ec4ef5787fba1caf1b08f1aa7cbd415b",
+  "command_results": [
+    {
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "C:\\Users\\braia\\AppData\\Local\\Temp\\storefront-guard-phase04-8eizqp1u\\worktree",
+        "618851b4ec4ef5787fba1caf1b08f1aa7cbd415b"
+      ],
+      "duration_ms": 157,
+      "exit_code": 0,
+      "name": "worktree_create",
+      "passed": true,
+      "stderr_excerpt": "Preparing worktree (detached HEAD 618851b)\n",
+      "stdout_excerpt": "HEAD is now at 618851b fix: increase structured analysis completion budget\n",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error",
+        "--recount",
+        "C:\\Users\\braia\\AppData\\Local\\Temp\\storefront-guard-phase04-8eizqp1u\\candidate.patch"
+      ],
+      "duration_ms": 31,
+      "exit_code": 0,
+      "name": "patch_apply_check",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "git",
+        "apply",
+        "--whitespace=error",
+        "--recount",
+        "C:\\Users\\braia\\AppData\\Local\\Temp\\storefront-guard-phase04-8eizqp1u\\candidate.patch"
+      ],
+      "duration_ms": 16,
+      "exit_code": 0,
+      "name": "patch_apply",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Proyectos\\storefront-change-guard\\.venv\\Scripts\\python.exe",
+        "-m",
+        "compileall",
+        "-q",
+        "agent_solution"
+      ],
+      "duration_ms": 531,
+      "exit_code": 0,
+      "name": "compileall",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Proyectos\\storefront-change-guard\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "duration_ms": 20952,
+      "exit_code": 0,
+      "name": "pytest",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n.....................................................................    [100%]\n",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Proyectos\\storefront-change-guard\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "agent_solution",
+        "scripts"
+      ],
+      "duration_ms": 141,
+      "exit_code": 0,
+      "name": "ruff",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "All checks passed!\n",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "duration_ms": 61,
+      "exit_code": 0,
+      "name": "git_diff_check",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "",
+      "timed_out": false
+    },
+    {
+      "command": [
+        "git",
+        "worktree",
+        "remove",
+        "--force",
+        "C:\\Users\\braia\\AppData\\Local\\Temp\\storefront-guard-phase04-8eizqp1u\\worktree"
+      ],
+      "duration_ms": 108,
+      "exit_code": 0,
+      "name": "worktree_cleanup",
+      "passed": true,
+      "stderr_excerpt": "",
+      "stdout_excerpt": "",
+      "timed_out": false
+    }
+  ],
+  "created_at_utc": "2026-06-26T06:22:57.155740+00:00",
+  "failure_detail": "",
+  "patch_safety": {
+    "accepted": true,
+    "changed_paths": [
+      "agent_solution/tests/test_shipping.py",
+      "shipping.py"
+    ],
+    "patch_byte_count": 941,
+    "patch_sha256": "c2d58e8a12f582dfc96d8b2425670af2f5c1d50364e2eb0e90fdc3bb4dba4c6d",
+    "rejection_reasons": []
+  },
+  "repository_root": "C:\\Proyectos\\storefront-change-guard",
+  "retained_worktree_path": "",
+  "run_id": "phase04-f90b2e47f8c5",
+  "status": "VALIDATED",
+  "validation_profile": "standard",
+  "worktree_retained": false
+}

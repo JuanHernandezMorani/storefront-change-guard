@@ -1,0 +1,30 @@
+diff --git a/shipping.py b/shipping.py
+--- a/shipping.py
++++ b/shipping.py
+@@ -1,6 +1,7 @@
+ ﻿FREE_SHIPPING_THRESHOLD_CENTS = 5_000
++STANDARD_SHIPPING_CENTS = 700
+ 
+ def calculate_shipping(subtotal_cents: int) -> int:
+     if subtotal_cents >= FREE_SHIPPING_THRESHOLD_CENTS:
+         return 0
+-    return 700
++    return STANDARD_SHIPPING_CENTS
+diff --git a/agent_solution/tests/test_shipping.py b/agent_solution/tests/test_shipping.py
+new file mode 100644
+--- /dev/null
++++ b/agent_solution/tests/test_shipping.py
+@@ -0,0 +1,13 @@
++from shipping import (
++    FREE_SHIPPING_THRESHOLD_CENTS,
++    STANDARD_SHIPPING_CENTS,
++    calculate_shipping,
++)
++
++
++def test_shipping_uses_named_standard_rate_below_threshold() -> None:
++    assert calculate_shipping(FREE_SHIPPING_THRESHOLD_CENTS - 1) == STANDARD_SHIPPING_CENTS
++
++
++def test_shipping_is_free_at_threshold() -> None:
++    assert calculate_shipping(FREE_SHIPPING_THRESHOLD_CENTS) == 0

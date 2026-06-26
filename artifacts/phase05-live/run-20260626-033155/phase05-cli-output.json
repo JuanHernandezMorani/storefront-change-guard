@@ -1,0 +1,15 @@
+{
+  "decision_id": "phase05-5c01c0f109ec",
+  "status": "READY",
+  "policy_version": "phase-05.1.0",
+  "analysis_artifact_sha256": "84ebb8890b3c62c3c9db9de67876601a858a2eacaba02accfb023e08fda8a5b0",
+  "patch_validation_artifact_sha256": "d5e19e6ea445029a6c45bd41c4b10061202988f2fad4594e43d667b25bebf0d9",
+  "reasons": [
+    {
+      "code": "ALL_REQUIRED_GATES_PASSED",
+      "detail": "Grounded analysis completed, no HIGH/CRITICAL findings remain, and isolated patch validation passed."
+    }
+  ],
+  "created_at_utc": "2026-06-26T06:31:55.680553+00:00",
+  "artifact_path": "C:\\Proyectos\\storefront-change-guard\\artifacts\\phase05-live\\run-20260626-033155\\phase05-5c01c0f109ec.readiness.json"
+}
