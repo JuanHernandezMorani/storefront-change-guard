@@ -65,6 +65,7 @@ class ResolvedScope:
     diff_available: bool = False
     search_bounded: bool = False
     search_limit: int = 0
+    explicit_file_targets: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

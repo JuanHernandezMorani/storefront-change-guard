@@ -7,7 +7,6 @@ layer can use to reject reuse when the snapshot is incomplete.
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
 
 from agent_solution.git_tools.models import (
     CollectionLimits,

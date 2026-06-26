@@ -7,8 +7,10 @@ and execution-brief construction.  Fully deterministic; no model calls.
 
 from __future__ import annotations
 
+import re
+
 from agent_solution.intake.clarifier import generate_clarifications
-from agent_solution.intake.classifier import classify_request
+from agent_solution.intake.classifier import classify_request, extract_file_targets
 from agent_solution.intake.defaults import resolve_safe_defaults
 from agent_solution.intake.models import (
     ConfidenceLevel,
@@ -23,20 +25,61 @@ from agent_solution.intake.models import (
     TaskType,
 )
 
+# ---------------------------------------------------------------------------
+# Constraint phrases that must NOT trigger task signals
+# ---------------------------------------------------------------------------
+
+_CONSTRAINT_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\bdo not\b.*\bmodify\b", re.IGNORECASE),
+    re.compile(r"\bdon't\b.*\bmodify\b", re.IGNORECASE),
+    re.compile(r"\bdo not\b.*\bchange\b", re.IGNORECASE),
+    re.compile(r"\bdon't\b.*\bchange\b", re.IGNORECASE),
+    re.compile(r"\bwithout modifying\b", re.IGNORECASE),
+    re.compile(r"\bwithout changing\b", re.IGNORECASE),
+    re.compile(r"\bwithout applying\b", re.IGNORECASE),
+    re.compile(r"\bwithout running\b", re.IGNORECASE),
+    re.compile(r"\bdo not apply a patch\b", re.IGNORECASE),
+    re.compile(r"\bdon't apply a patch\b", re.IGNORECASE),
+    re.compile(r"\bdo not apply\b", re.IGNORECASE),
+    re.compile(r"\bdon't apply\b", re.IGNORECASE),
+    re.compile(r"\bno modifiques\b", re.IGNORECASE),
+    re.compile(r"\bno modificar\b", re.IGNORECASE),
+    re.compile(r"\bno cambies\b", re.IGNORECASE),
+    re.compile(r"\bno apliques\b", re.IGNORECASE),
+    re.compile(r"\bno ejecutes\b", re.IGNORECASE),
+    re.compile(r"\bno corras\b", re.IGNORECASE),
+    re.compile(r"\boutput json\b", re.IGNORECASE),
+    re.compile(r"\breturn the answer in spanish\b", re.IGNORECASE),
+    re.compile(r"\breturn the answer in english\b", re.IGNORECASE),
+    re.compile(r"\bscope to\b", re.IGNORECASE),
+]
+
+
+def _remove_constraint_phrases(text: str) -> str:
+    """Remove constraint phrases that should not trigger task signals."""
+    result = text
+    for pat in _CONSTRAINT_PATTERNS:
+        result = pat.sub('', result)
+    return result
+
 
 def _assess_risk(
     task_type: TaskType,
     text: str,
     *,
     has_diff: bool,
+    has_paths: bool,
     missing_evidence: bool,
 ) -> RiskLevel:
     """Assess risk level deterministically.
 
     BUG_DIAGNOSIS and READINESS_ASSESSMENT with missing evidence are
     elevated to MEDIUM or HIGH.  CODE_REVIEW with a diff is LOW.
+    Bounded defect discovery (has_paths) is treated as LOW risk.
     """
     if task_type == TaskType.BUG_DIAGNOSIS:
+        if has_paths:
+            return RiskLevel.LOW
         if missing_evidence:
             return RiskLevel.HIGH
         return RiskLevel.MEDIUM
@@ -61,6 +104,10 @@ def _has_mixed_goals(text: str) -> bool:
     A request is mixed-goals when it contains signals from two or more
     distinct task types that require different execution contracts or
     levels of authority.  Deterministic signal-overlap approach.
+
+    Constraint phrases (e.g. "do not modify files", "only",
+    "return the answer in Spanish") are stripped before detection
+    so they do not create false extra-task signals.
     """
     from agent_solution.intake.classifier import (
         _BUG_PATTERNS,
@@ -71,18 +118,20 @@ def _has_mixed_goals(text: str) -> bool:
         _count_matches,
     )
 
+    clean_text = _remove_constraint_phrases(text)
+
     task_signals: set[TaskType] = set()
     threshold = 1
 
-    if _count_matches(text, _REVIEW_PATTERNS) >= threshold:
+    if _count_matches(clean_text, _REVIEW_PATTERNS) >= threshold:
         task_signals.add(TaskType.CODE_REVIEW)
-    if _count_matches(text, _BUG_PATTERNS) >= threshold:
+    if _count_matches(clean_text, _BUG_PATTERNS) >= threshold:
         task_signals.add(TaskType.BUG_DIAGNOSIS)
-    if _count_matches(text, _CODEBASE_Q_PATTERNS) >= threshold:
+    if _count_matches(clean_text, _CODEBASE_Q_PATTERNS) >= threshold:
         task_signals.add(TaskType.CODEBASE_QUESTION)
-    if _count_matches(text, _READINESS_PATTERNS) >= threshold:
+    if _count_matches(clean_text, _READINESS_PATTERNS) >= threshold:
         task_signals.add(TaskType.READINESS_ASSESSMENT)
-    if _count_matches(text, _PATCH_PATTERNS) >= threshold:
+    if _count_matches(clean_text, _PATCH_PATTERNS) >= threshold:
         task_signals.add(TaskType.PATCH_PROPOSAL)
 
     return len(task_signals) >= 2
@@ -239,8 +288,16 @@ def process_request(
 
     normalized = text.strip()
 
+    # Strip constraint phrases before classification so they do not
+    # create false extra-task signals (e.g. "do not modify files"
+    # must not trigger PATCH_PROPOSAL).
+    clean_text = _remove_constraint_phrases(normalized)
+
+    # Extract explicit file targets from request text
+    explicit_file_targets = extract_file_targets(normalized)
+
     # --- Step 1: Classify ---
-    task_type, confidence = classify_request(normalized)
+    task_type, confidence = classify_request(clean_text)
 
     # --- Step 2: Assess risk ---
     missing_error, missing_paths, missing_validation, missing_env = (
@@ -259,6 +316,7 @@ def process_request(
         task_type,
         normalized,
         has_diff=has_diff,
+        has_paths=has_paths,
         missing_evidence=any_missing,
     )
 
@@ -270,6 +328,7 @@ def process_request(
         config,
         has_diff=has_diff,
         has_working_tree=has_working_tree,
+        has_paths=has_paths,
         missing_error=missing_error,
         missing_paths=missing_paths,
         missing_validation=missing_validation,
@@ -283,6 +342,7 @@ def process_request(
         normalized,
         has_diff=has_diff,
         has_working_tree=has_working_tree,
+        has_paths=has_paths,
     )
 
     scope = _resolve_scope(
@@ -291,6 +351,7 @@ def process_request(
         has_diff=has_diff,
         has_paths=has_paths,
         safe_defaults=safe_defaults,
+        explicit_file_targets=explicit_file_targets,
     )
 
     # --- Step 5: Clarifications (if needed) ---
@@ -364,6 +425,7 @@ def _determine_decision(
     *,
     has_diff: bool,
     has_working_tree: bool,
+    has_paths: bool,
     missing_error: bool,
     missing_paths: bool,
     missing_validation: bool,
@@ -392,14 +454,15 @@ def _determine_decision(
     if task_type == TaskType.CODE_REVIEW:
         if has_diff and has_working_tree:
             return IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        # Bounded file review without diff is safe analysis.
+        if has_paths:
+            return IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
         return IntakeDecision.CLARIFY
 
-    # Low confidence on non-review types: clarify
-    if confidence == ConfidenceLevel.LOW:
-        return IntakeDecision.CLARIFY
-
-    # BUG_DIAGNOSIS: needs evidence
+    # BUG_DIAGNOSIS: bounded defect discovery of a file is safe analysis.
     if task_type == TaskType.BUG_DIAGNOSIS:
+        if has_paths:
+            return IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
         if missing_error:
             return IntakeDecision.CLARIFY
         return IntakeDecision.REFINE_FOR_EXECUTION
@@ -407,6 +470,10 @@ def _determine_decision(
     # CODEBASE_QUESTION: bounded search is usually safe
     if task_type == TaskType.CODEBASE_QUESTION:
         return IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    # Low confidence on remaining types: clarify
+    if confidence == ConfidenceLevel.LOW:
+        return IntakeDecision.CLARIFY
 
     # READINESS_ASSESSMENT: needs explicit criteria
     if task_type == TaskType.READINESS_ASSESSMENT:
@@ -431,6 +498,7 @@ def _resolve_scope(
     has_diff: bool,
     has_paths: bool,
     safe_defaults: SafeDefaults,
+    explicit_file_targets: tuple[str, ...] = (),
 ) -> ResolvedScope:
     """Resolve the execution scope from task type and available evidence."""
 
@@ -438,16 +506,34 @@ def _resolve_scope(
         return ResolvedScope(
             description="Current working-tree diff.",
             diff_available=True,
+            explicit_file_targets=explicit_file_targets,
         )
     if task_type == TaskType.CODE_REVIEW and has_paths:
         return ResolvedScope(
-            description="Explicit file paths from request.",
+            description="Bounded file review of explicit paths.",
+            explicit_file_targets=explicit_file_targets,
         )
+    if task_type == TaskType.CODE_REVIEW:
+        if explicit_file_targets:
+            return ResolvedScope(
+                description="Bounded file review of explicit paths.",
+                explicit_file_targets=explicit_file_targets,
+            )
     if task_type == TaskType.CODEBASE_QUESTION:
         return ResolvedScope(
             description="Bounded repository search.",
             search_bounded=True,
             search_limit=20,
+        )
+    if task_type == TaskType.BUG_DIAGNOSIS and has_paths:
+        return ResolvedScope(
+            description="Bounded defect discovery of explicit paths.",
+            explicit_file_targets=explicit_file_targets,
+        )
+    if task_type == TaskType.BUG_DIAGNOSIS and explicit_file_targets:
+        return ResolvedScope(
+            description="Bounded defect discovery of explicit paths.",
+            explicit_file_targets=explicit_file_targets,
         )
     if safe_defaults.applied:
         return ResolvedScope(

@@ -16,8 +16,8 @@ from pathlib import Path
 from agent_solution.git_tools.excerpts import collect_excerpts
 from agent_solution.git_tools.fingerprint import build_fingerprint
 from agent_solution.git_tools.models import (
-    ChangeKind,
     ChangedFile,
+    ChangeKind,
     CollectionLimits,
     DiffArtifact,
     ExcludedArtifact,

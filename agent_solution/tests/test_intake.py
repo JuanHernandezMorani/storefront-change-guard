@@ -492,3 +492,343 @@ class TestModelProfiles:
         assert key.prompt_schema_version == "0.1.0"
         assert key.output_language == "en"
         assert key.repository_fingerprint == "abc123"
+
+
+# ---------------------------------------------------------------------------
+# Phase-02-FIX-02: Natural single-purpose English and Spanish requests
+# ---------------------------------------------------------------------------
+
+class TestEnglishBoundedReview:
+    """Bounded file review requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_review_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-en-01",
+            text="Review shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.risk_level == RiskLevel.MEDIUM
+
+    def test_code_review_colon_target(self) -> None:
+        result = process_request(
+            request_id="fix02-en-02",
+            text="Code review: shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_review_only_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-en-03",
+            text="Review only shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_perform_code_review_of_shipping_py_only(self) -> None:
+        result = process_request(
+            request_id="fix02-en-04",
+            text="Perform a code review of shipping.py only.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+
+class TestEnglishDefectDiscovery:
+    """Bounded defect discovery requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_find_one_defect_in_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-en-10",
+            text="Find one defect in shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.risk_level == RiskLevel.LOW
+
+    def test_find_one_defect_no_modify_files(self) -> None:
+        result = process_request(
+            request_id="fix02-en-11",
+            text="Find one defect in shipping.py. Do not modify files.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.safe_defaults.applied is True
+
+    def test_identify_defect_in_checkout(self) -> None:
+        result = process_request(
+            request_id="fix02-en-12",
+            text="Identify one defect in src/domain/checkout/shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+
+class TestEnglishCodebaseQuestion:
+    """Codebase question requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_what_does_calculate_shipping_do(self) -> None:
+        result = process_request(
+            request_id="fix02-en-20",
+            text="What does calculate_shipping do in shipping.py?",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_explain_what_calculate_shipping_does(self) -> None:
+        result = process_request(
+            request_id="fix02-en-21",
+            text="Explain what calculate_shipping does in shipping.py.",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_explain_with_spanish_return_constraint(self) -> None:
+        result = process_request(
+            request_id="fix02-en-22",
+            text="Explain what calculate_shipping does in "
+            "shipping.py. Return the answer in Spanish.",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+
+class TestSpanishBoundedReview:
+    """Spanish bounded review requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_revisa_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-es-01",
+            text="Revisá shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_hace_revision_de_codigo(self) -> None:
+        result = process_request(
+            request_id="fix02-es-02",
+            text="Hacé una revisión de código de shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_revisar_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-es-03",
+            text="Revisar shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_revisa_no_modifiques_archivos(self) -> None:
+        result = process_request(
+            request_id="fix02-es-04",
+            text="Revisá shipping.py. No modifiques archivos.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.safe_defaults.applied is True
+
+
+class TestSpanishDefectDiscovery:
+    """Spanish bounded defect discovery requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_encontrada_un_defecto_en_shipping_py(self) -> None:
+        result = process_request(
+            request_id="fix02-es-10",
+            text="Encontrá un defecto en shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.risk_level == RiskLevel.LOW
+
+    def test_encontrar_defecto_no_modificar(self) -> None:
+        result = process_request(
+            request_id="fix02-es-11",
+            text="Encontrá un defecto en shipping.py. No modificar archivos.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.safe_defaults.applied is True
+
+
+class TestSpanishCodebaseQuestion:
+    """Spanish codebase question requests must ACCEPT_WITH_SAFE_DEFAULTS."""
+
+    def test_que_hace_calculate_shipping(self) -> None:
+        result = process_request(
+            request_id="fix02-es-20",
+            text="¿Qué hace calculate_shipping en shipping.py?",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_explicar_que_hace_calculate_shipping(self) -> None:
+        result = process_request(
+            request_id="fix02-es-21",
+            text="Explicá qué hace calculate_shipping en shipping.py?",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+
+class TestConstraintHandling:
+    """Constraints must not create false extra-task signals."""
+
+    def test_review_only_no_patch_signal(self) -> None:
+        result = process_request(
+            request_id="fix02-con-01",
+            text="Review shipping.py only.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.decision != IntakeDecision.CLARIFY
+
+    def test_find_defect_no_modify_files(self) -> None:
+        result = process_request(
+            request_id="fix02-con-02",
+            text="Find one defect in shipping.py. Do not modify files.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.decision != IntakeDecision.CLARIFY
+
+    def test_explain_return_spanish(self) -> None:
+        result = process_request(
+            request_id="fix02-con-03",
+            text="Explain what calculate_shipping does in "
+            "shipping.py. Return the answer in Spanish.",
+        )
+        assert result.detected_task_type == TaskType.CODEBASE_QUESTION
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+
+    def test_revisa_no_modifiques(self) -> None:
+        result = process_request(
+            request_id="fix02-con-04",
+            text="Revisá shipping.py. No modifiques archivos.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.decision != IntakeDecision.CLARIFY
+
+    def test_encontrada_no_modificar(self) -> None:
+        result = process_request(
+            request_id="fix02-con-05",
+            text="Encontrá un defecto en shipping.py. No modificar archivos.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.decision != IntakeDecision.CLARIFY
+
+
+class TestRetainedRejections:
+    """Genuinely compound requests must still be CLARIFY."""
+
+    def test_review_explain_patch_apply_tests_readiness(self) -> None:
+        result = process_request(
+            request_id="fix02-rej-01",
+            text=(
+                "Review shipping.py, explain the documentation, "
+                "propose a patch, apply the patch, run tests, "
+                "and make a readiness decision."
+            ),
+        )
+        assert result.decision == IntakeDecision.CLARIFY
+        has_decomposition = any(
+            "decompose" in q.question.lower() or "distinct" in q.question.lower()
+            for q in result.clarifying_questions
+        )
+        assert has_decomposition
+
+    def test_find_all_bugs_redesign_checkout_edit_tests_readiness(self) -> None:
+        result = process_request(
+            request_id="fix02-rej-02",
+            text=(
+                "Find all bugs, redesign checkout, edit the code, "
+                "run all tests, and decide whether the product is ready."
+            ),
+        )
+        assert result.decision == IntakeDecision.CLARIFY
+        has_decomposition = any(
+            "decompose" in q.question.lower() or "distinct" in q.question.lower()
+            for q in result.clarifying_questions
+        )
+        assert has_decomposition
+
+
+class TestFixTheBugRemainsClarify:
+    """'Fix the bug.' must remain CLARIFY when no bounded target exists."""
+
+    def test_fix_the_bug_no_target(self) -> None:
+        result = process_request(
+            request_id="fix02-fixbug",
+            text="Fix the bug.",
+        )
+        assert result.detected_task_type == TaskType.BUG_DIAGNOSIS
+        assert result.decision == IntakeDecision.CLARIFY
+        assert result.risk_level == RiskLevel.HIGH
+        assert "observed_symptom_or_error" in result.missing_information
+
+
+# ---------------------------------------------------------------------------
+# Phase-02-FIX-02: Negative patch constraint and Spanish-only review pattern
+# ---------------------------------------------------------------------------
+
+class TestNegativePatchConstraint:
+    """'Do not apply a patch.' must remain a bounded review, not PATCH_PROPOSAL."""
+
+    def test_do_not_apply_patch(self) -> None:
+        result = process_request(
+            request_id="fix02-neg-01",
+            text="Do not apply a patch.",
+        )
+        assert result.detected_task_type != TaskType.PATCH_PROPOSAL
+
+    def test_review_do_not_apply_patch(self) -> None:
+        result = process_request(
+            request_id="fix02-neg-02",
+            text="Review shipping.py. Do not apply a patch.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.CODE_REVIEW
+        assert result.decision == IntakeDecision.ACCEPT_WITH_SAFE_DEFAULTS
+        assert result.decision != IntakeDecision.CLARIFY
+        assert result.decision != TaskType.PATCH_PROPOSAL
+
+    def test_affirmative_patch_still_patch_proposal(self) -> None:
+        result = process_request(
+            request_id="fix02-pos-01",
+            text="Apply the patch to shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type == TaskType.PATCH_PROPOSAL
+
+
+class TestSpanishOnlyReviewPattern:
+    """Portuguese-only phrasing must NOT become CODE_REVIEW."""
+
+    def test_portuguese_not_code_review(self) -> None:
+        result = process_request(
+            request_id="fix02-pt-01",
+            text="Faça uma revisão de shipping.py.",
+            has_paths=True,
+        )
+        assert result.detected_task_type != TaskType.CODE_REVIEW

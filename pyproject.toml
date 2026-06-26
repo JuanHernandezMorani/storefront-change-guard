@@ -28,6 +28,8 @@ packages = [
   "agent_solution.core",
   "agent_solution.intake",
   "agent_solution.git_tools",
+  "agent_solution.analysis",
+  "agent_solution.model",
   "agent_solution.checks",
   "agent_solution.intelligence",
   "agent_solution.decision",

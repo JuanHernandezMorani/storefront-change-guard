@@ -20,6 +20,7 @@ def resolve_safe_defaults(
     *,
     has_diff: bool = False,
     has_working_tree: bool = False,
+    has_paths: bool = False,
 ) -> tuple[SafeDefaults, tuple[Assumption, ...]]:
     """Return safe defaults and assumptions for a request, or no-ops.
 
@@ -27,11 +28,11 @@ def resolve_safe_defaults(
     before calling this function.
     """
     if task_type == TaskType.CODE_REVIEW:
-        return _review_defaults(text, has_diff, has_working_tree)
+        return _review_defaults(text, has_diff, has_working_tree, has_paths)
     if task_type == TaskType.CODEBASE_QUESTION:
         return _codebase_question_defaults(text)
     if task_type == TaskType.BUG_DIAGNOSIS:
-        return _bug_diagnosis_defaults(text)
+        return _bug_diagnosis_defaults(text, has_paths)
     if task_type == TaskType.READINESS_ASSESSMENT:
         return _readiness_defaults(text)
     if task_type == TaskType.PATCH_PROPOSAL:
@@ -43,6 +44,7 @@ def _review_defaults(
     text: str,
     has_diff: bool,
     has_working_tree: bool,
+    has_paths: bool = False,
 ) -> tuple[SafeDefaults, tuple[Assumption, ...]]:
     if has_diff and has_working_tree:
         defaults = SafeDefaults(
@@ -59,6 +61,30 @@ def _review_defaults(
                 field="scope",
                 value="current_git_diff",
                 confidence=ConfidenceLevel.HIGH,
+            ),
+            Assumption(
+                field="review_depth",
+                value="standard",
+                confidence=ConfidenceLevel.MEDIUM,
+            ),
+        )
+        return defaults, assumptions
+
+    if has_paths:
+        defaults = SafeDefaults(
+            applied=True,
+            scope_source="explicit_file_paths",
+            scope_description="Bounded review scoped to explicit file paths.",
+            rationale=(
+                "The user requested a review of specific files without a diff. "
+                "Defaulting scope to the provided file paths."
+            ),
+        )
+        assumptions = (
+            Assumption(
+                field="scope",
+                value="explicit_file_paths",
+                confidence=ConfidenceLevel.MEDIUM,
             ),
             Assumption(
                 field="review_depth",
@@ -106,7 +132,32 @@ def _codebase_question_defaults(
 
 def _bug_diagnosis_defaults(
     text: str,
+    has_paths: bool = False,
 ) -> tuple[SafeDefaults, tuple[Assumption, ...]]:
+    if has_paths:
+        defaults = SafeDefaults(
+            applied=True,
+            scope_source="explicit_file_paths",
+            scope_description="Bounded defect discovery scoped to explicit file paths.",
+            rationale=(
+                "The user requested bounded defect discovery of specific files. "
+                "Defaulting scope to the provided file paths."
+            ),
+        )
+        assumptions = (
+            Assumption(
+                field="scope",
+                value="explicit_file_paths",
+                confidence=ConfidenceLevel.MEDIUM,
+            ),
+            Assumption(
+                field="discovery_depth",
+                value="bounded_file_analysis",
+                confidence=ConfidenceLevel.MEDIUM,
+            ),
+        )
+        return defaults, assumptions
+
     defaults = SafeDefaults(
         applied=False,
         scope_source="none",

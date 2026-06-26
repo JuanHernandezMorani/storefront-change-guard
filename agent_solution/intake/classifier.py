@@ -2,6 +2,7 @@
 
 Uses keyword matching with bilingual support (English and Spanish).
 When confidence is insufficient, returns UNKNOWN.
+Extracts explicit file targets from request text.
 """
 
 from __future__ import annotations
@@ -10,6 +11,16 @@ import re
 from dataclasses import dataclass
 
 from agent_solution.intake.models import ConfidenceLevel, TaskType
+
+# ---------------------------------------------------------------------------
+# Explicit file target extraction
+# ---------------------------------------------------------------------------
+
+_FILE_TARGET_PATTERN: re.Pattern[str] = re.compile(
+    r"(?:review|check|analyze|fix|explain|what does|qué hace)\s+"
+    r"(\S+?\.py)",
+    re.IGNORECASE,
+)
 
 # ---------------------------------------------------------------------------
 # Keyword patterns (English + Spanish)
@@ -23,12 +34,13 @@ _REVIEW_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\brevis[áa]\b", re.IGNORECASE),
     re.compile(r"\brevisar\b", re.IGNORECASE),
     re.compile(r"\banalizar\b.*\bcambio\b", re.IGNORECASE),
+    re.compile(r"\bhac[ée] una revis[io]?[áaó]?n?\b", re.IGNORECASE),
 ]
 
 _BUG_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bfix\b.*\bbug\b", re.IGNORECASE),
     re.compile(r"\bfix\b.*\berror\b", re.IGNORECASE),
-    re.compile(r"\bbug\b", re.IGNORECASE),
+    re.compile(r"\bbug(s)?\b", re.IGNORECASE),
     re.compile(r"\berror\b", re.IGNORECASE),
     re.compile(r"\bcrash\b", re.IGNORECASE),
     re.compile(r"\bfailure\b", re.IGNORECASE),
@@ -37,6 +49,10 @@ _BUG_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bbug\b.*\barregl[áa]\b", re.IGNORECASE),
     re.compile(r"\barreglar\b", re.IGNORECASE),
     re.compile(r"\berror\b.*\bfix\b", re.IGNORECASE),
+    re.compile(r"\bfind\b.*\bdefect(s|o)?\b", re.IGNORECASE),
+    re.compile(r"\bidentify\b.*\bdefect(s|o)?\b", re.IGNORECASE),
+    re.compile(r"\bencontr[áa]?\b.*\bdefect(s|o)?\b", re.IGNORECASE),
+    re.compile(r"\bencontrar\b.*\bdefect(s|o)?\b", re.IGNORECASE),
 ]
 
 _CODEBASE_Q_PATTERNS: list[re.Pattern[str]] = [
@@ -49,6 +65,8 @@ _CODEBASE_Q_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bc[óo]mo\b.*\b(trabaja|funciona|calcula|opera)\b", re.IGNORECASE),
     re.compile(r"\bd[óo]nde\b.*\b(est[áa]|defin|ubic)\b", re.IGNORECASE),
     re.compile(r"\bqu[ée]\b.*\b(es|hace)\b", re.IGNORECASE),
+    re.compile(r"\bwhat does\b.*\bdo\b", re.IGNORECASE),
+    re.compile(r"\bqué hace\b.*\b\w+\b", re.IGNORECASE),
 ]
 
 _READINESS_PATTERNS: list[re.Pattern[str]] = [
@@ -69,6 +87,7 @@ _PATCH_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bpatch\b", re.IGNORECASE),
     re.compile(r"\bfix\s+it\b", re.IGNORECASE),
     re.compile(r"\bchange\b.*\bcode\b", re.IGNORECASE),
+    re.compile(r"\bedit\b.*\bcode\b", re.IGNORECASE),
     re.compile(r"\bmodify\b", re.IGNORECASE),
     re.compile(r"\bimprove\b", re.IGNORECASE),
     re.compile(r"\brefactor\b", re.IGNORECASE),
@@ -145,3 +164,13 @@ def classify_request(text: str) -> tuple[TaskType, ConfidenceLevel]:
             return TaskType.UNKNOWN, ConfidenceLevel.LOW
 
     return best.task_type, best.confidence
+
+
+def extract_file_targets(text: str) -> tuple[str, ...]:
+    """Extract explicit file targets from request text.
+
+    Returns a tuple of file paths found in the request.
+    Only extracts .py files for now (conservative approach).
+    """
+    matches = _FILE_TARGET_PATTERN.findall(text)
+    return tuple(matches)

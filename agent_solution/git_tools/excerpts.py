@@ -14,7 +14,6 @@ from agent_solution.git_tools.models import (
     CollectionLimits,
     ExcludedArtifact,
     FileExcerpt,
-    StagingStatus,
 )
 
 
