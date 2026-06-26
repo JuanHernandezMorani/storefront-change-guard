@@ -117,3 +117,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
   - Retained affirmative patch behavior: "Apply the patch to shipping.py." continues to classify as PATCH_PROPOSAL.
   - Added 4 regression tests covering negative patch constraint, affirmative patch retention, and Portuguese rejection.
   - All intake tests pass; ruff clean; git diff --check clean.
+
+---
+
+## [0.4.0] — 2026-06-26
+
+### Fixed
+
+- **Phase-03-FIX-03:** Added strict runtime-boundary sanitization for the
+  observed `llama-cli` banner, exact prompt echo, and performance trailer.
+  Added controlled normalization for one complete leading
+  `[Start thinking]...[End thinking]` pair. Arbitrary prose remains rejected by
+  the envelope parser; raw stdout is not persisted by runner results.
+
+### Added
+
+- **Phase 04:** Deterministic isolated patch validation with static unified-diff
+  safety checks, detached Git worktrees, named fixed validation profiles,
+  machine-readable artifacts, and source-checkout immutability tests.
+- **Phase 05:** Deterministic readiness policy that consumes Phase 03/04 JSON
+  artifacts, records input hashes and reason codes, and never allows model prose
+  to override quality gates.
+- `scripts/run_phase_validation.py` and a PowerShell wrapper for one-command,
+  phase-scoped test and hygiene reporting.
+- Delivery runbook, Phase 04/05 operational docs, and a concise decision
+  document for final presentation preparation.
+
+### Pending live evidence
+
+- Fresh Phase 03 runtime gates A–D on the target local Qwen3.5/llama-cli stack.
+- Controlled Phase 04 patch validation and Phase 05 decision using those real
+  artifacts.

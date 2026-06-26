@@ -4,9 +4,24 @@
 
 ## Project status
 
-**Current phase:** Phase 01 — Demo storefront preparation complete.
+**Current position:** Phase 01 and Phase 02 are closed by prior independent
+review. Phase 03 has deterministic implementation coverage and requires final
+local runtime gates. Phase 04 isolated patch validation and Phase 05 readiness
+policy are implemented with deterministic tests; their end-to-end demonstration
+remains a final delivery gate. Phase 06 documentation and rehearsal material is
+partially prepared.
 
-The prototype is intentionally being built in phases. Phase 01 has established a clean storefront baseline with lint, build, and test checks. The checkout shipping domain and boundary-rule tests are in place for the controlled regression scenario. The review agent implementation is not yet started.
+The repository deliberately separates **implemented**, **deterministically
+tested**, and **live-validated**. No phase is described as approved merely
+because its unit tests pass.
+
+| Area | Current evidence | Remaining gate |
+|---|---|---|
+| Phase 02 intake + Git context | Approved in project audit records | None unless a proven regression appears |
+| Phase 03 local review + Q&A | Deterministic tests, strict runtime boundary sanitizer | Live gates A–D with the local Qwen3.5 runtime |
+| Phase 04 patch validation | Isolated-worktree tests | Run a controlled patch through the local repository |
+| Phase 05 readiness | Policy tests | Consume real Phase 03/04 artifacts |
+| Phase 06 delivery | Runbook and decision document drafted | Final audit, ZIP, rehearsal, presentation |
 
 ## Challenge objective
 
@@ -31,10 +46,11 @@ Readiness decision with explicit policy rules
 The technical challenge requests at least two capabilities. This prototype is designed around three connected capabilities, with the first two being the primary commitment:
 
 1. **Review code changes and provide useful, actionable feedback.**
-2. **Detect a defect, propose a correction, and validate that correction.**
-3. **Decide whether a change is ready to move forward using explicit, auditable criteria.**
+2. **Answer bounded questions about code and documentation using repository evidence.**
+3. **Validate an explicitly supplied correction in an isolated worktree and decide readiness with policy rules.**
 
-Answering ad-hoc questions about code or documentation may be added later as a non-core extension. It is not required for the initial demonstration.
+The prototype keeps semantic analysis advisory and makes patch execution,
+validation, and readiness deterministic.
 
 ## Design principles and priority order
 
@@ -132,7 +148,8 @@ These folders have intentionally different roles. Keeping them separate makes th
 - Python 3.11 or newer.
 - Git.
 - Node.js and the package manager required by `demo-storefront`.
-- A local OpenAI-compatible model endpoint will be required in a later phase. It is not required for the current bootstrap CLI.
+- The Phase 03 live gates require the configured local `llama-cli` runtime and Qwen3.5 model.
+- Deterministic Phase 02–05 tests do not require model weights.
 
 ### Initial bootstrap
 
@@ -146,7 +163,9 @@ python -m pip install -e ".[dev]"
 python -m agent_solution --help
 ```
 
-The current CLI is only a scaffold. The commands above verify that the Python package is installable and runnable before implementation begins.
+The CLI exposes bounded commands for evidence-grounded analysis, isolated patch
+validation, and deterministic readiness evaluation. Run `python -m
+agent_solution --help` to inspect all options.
 
 ### Local configuration
 
@@ -191,12 +210,28 @@ The exact contract may evolve, but artifacts must remain machine-readable where 
 | Phase | Goal | Primary evidence |
 |---|---|---|
 | Phase 00 | Establish the demo storefront baseline before any modifications. | `AUDIT/phase-00-repository-baseline.md` |
-| Phase 01 | Prepare documented checkout rules, tests, and controlled candidate changes. | Phase audit + storefront commits | ✅ |
-| Phase 02 | Implement Git context collection and deterministic checks. | CLI and automated tests |
-| Phase 03 | Add local-model review with structured output and evidence validation. | Review artifacts + tests |
-| Phase 04 | Add isolated patch application and validation worktrees. | Validation artifacts + integration tests |
-| Phase 05 | Add policy-driven readiness decisions and end-to-end runs. | Decision artifacts + scenario report |
-| Phase 06 | Final reproducibility, documentation, rehearsal, and delivery review. | Delivery-readiness audit |
+| Phase 01 | Prepare documented checkout rules, tests, and controlled candidate changes. | Approved audit record |
+| Phase 02 | Implement Git context collection and deterministic checks. | Approved audit record |
+| Phase 03 | Add local-model review with structured output and evidence validation. | Deterministic tests; live gates pending |
+| Phase 04 | Add isolated patch application and validation worktrees. | Unit/integration tests; controlled live run pending |
+| Phase 05 | Add policy-driven readiness decisions and end-to-end runs. | Policy tests; real-artifact run pending |
+| Phase 06 | Final reproducibility, documentation, rehearsal, and delivery review. | Runbook/decision doc drafted; final audit pending |
+
+## Deterministic phase validation
+
+Run all phase-scoped tests and hygiene checks together:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_phase_validation.py --phase all
+```
+
+The runner reports a pass/fail line for `phase00`, `phase02`, `phase03`,
+`phase04`, `phase05`, `ruff`, and `git_diff_check`. Use `--phase phase04` to isolate one
+contract group while fixing a failure.
+
+See [Phase 04](docs/phase-04-patch-validation.md),
+[Phase 05](docs/phase-05-readiness-policy.md), and the
+[delivery runbook](docs/delivery-runbook.md) for the operational sequence.
 
 ## AI usage and ownership
 

@@ -150,9 +150,7 @@ def _build_user_prompt(
         for r in request.evidence_bundle.evidence_records
     )
 
-    evidence_ids = ", ".join(
-        r.evidence_id for r in request.evidence_bundle.evidence_records
-    )
+    evidence_ids = ", ".join(r.evidence_id for r in request.evidence_bundle.evidence_records)
 
     return f"""Task: {request.analysis_mode.value}
 Request: {request.original_request}
@@ -243,7 +241,7 @@ def extract_reasoning_envelope(
     starts_reasoning = first_significant.startswith(_REASONING_OPEN_TAG)
     starts_json = first_significant.startswith("{")
     if first_significant and not starts_reasoning and not starts_json:
-        non_ws = re.sub(r'\s+', '', first_significant[:200])
+        non_ws = re.sub(r"\s+", "", first_significant[:200])
         if non_ws and not non_ws.startswith("{") and not non_ws.startswith(_REASONING_OPEN_TAG):
             return _fail(diagnostics, "PROSE_BEFORE_REASONING_OR_JSON")
 
@@ -273,7 +271,7 @@ def extract_reasoning_envelope(
             return _fail(diagnostics, "REASONING_BLOCK_EXCEEDS_LIMIT")
 
         # Extract content after closing tag
-        after_reasoning = trimmed[reasoning_end + len(_REASONING_CLOSE_TAG):].strip()
+        after_reasoning = trimmed[reasoning_end + len(_REASONING_CLOSE_TAG) :].strip()
 
         # Check for prose between closing tag and JSON
         if after_reasoning and not after_reasoning.startswith("{"):
@@ -305,7 +303,7 @@ def extract_reasoning_envelope(
         if escape_next:
             escape_next = False
             continue
-        if ch == '\\' and in_string:
+        if ch == "\\" and in_string:
             escape_next = True
             continue
         if ch == '"' and not escape_next:
@@ -313,9 +311,9 @@ def extract_reasoning_envelope(
             continue
         if in_string:
             continue
-        if ch == '{':
+        if ch == "{":
             depth += 1
-        elif ch == '}':
+        elif ch == "}":
             depth -= 1
             if depth == 0:
                 json_end = i
@@ -324,7 +322,10 @@ def extract_reasoning_envelope(
     if json_end < 0:
         return _fail(diagnostics, "MALFORMED_JSON_NO_CLOSING_BRACE")
 
-    extracted_json = json_text[:json_end + 1]
+    extracted_json = json_text[: json_end + 1]
+    trailing_content = json_text[json_end + 1 :].strip()
+    if trailing_content:
+        return _fail(diagnostics, "PROSE_AFTER_JSON")
 
     # Validate it's parseable JSON
     try:
@@ -356,6 +357,7 @@ class AnalysisOrchestrator:
 
         if state_dir is None:
             import os
+
             state_dir = Path(
                 os.environ.get(
                     "STORE_FRONT_GUARD_STATE_DIR",
@@ -423,9 +425,7 @@ class AnalysisOrchestrator:
 
         # Step 5: Check cache
         if not self._no_cache and fingerprint_complete:
-            cache_key = self._build_cache_key(
-                intake, evidence_bundle, output_language
-            )
+            cache_key = self._build_cache_key(intake, evidence_bundle, output_language)
             cached = self._cache.get(cache_key, fingerprint_complete)
             if cached is not None:
                 cached = GroundedAnalysisResult(
@@ -475,9 +475,7 @@ class AnalysisOrchestrator:
 
         context_budget_limitations: list[str] = []
         retained_records = list(evidence_bundle.evidence_records)
-        excluded_records: list[EvidenceRecord] = list(
-            evidence_bundle.excluded_evidence_records
-        )
+        excluded_records: list[EvidenceRecord] = list(evidence_bundle.excluded_evidence_records)
 
         if budget["budget_status"] == "EXCEEDED":
             # Deterministically reduce evidence
@@ -489,8 +487,7 @@ class AnalysisOrchestrator:
                 )
                 # Rebuild prompt without removed evidence
                 reduced_evidence_text = "\n\n".join(
-                    f"[{r.evidence_id}] {r.provenance}:\n{r.content}"
-                    for r in retained_records
+                    f"[{r.evidence_id}] {r.provenance}:\n{r.content}" for r in retained_records
                 )
                 reduced_ids = ", ".join(r.evidence_id for r in retained_records)
                 reduced_user = f"""Task: {intake.detected_task_type.value}
@@ -508,6 +505,32 @@ Output exactly one JSON object matching the schema.
                     prompt_tokens=prompt_tokens,
                     completion_limit=config.completion_limit,
                     configured_context_limit=config.context_limit,
+                )
+
+            # A model call with an empty evidence bundle is forbidden.  This
+            # can happen when a large working-tree diff is reduced away to fit
+            # the configured local context window.  Do not fall through to
+            # prompt execution merely because the prompt shell itself fits.
+            if not retained_records:
+                return GroundedAnalysisResult(
+                    analysis_request_id=analysis_request_id,
+                    intake_request_id=intake.request_id,
+                    status=AnalysisStatus.INSUFFICIENT_EVIDENCE,
+                    analysis_mode=_map_task_type_to_mode(intake.detected_task_type.value),
+                    summary=(
+                        "All evidence records were excluded to fit the configured "
+                        "context budget; no model call was made."
+                    ),
+                    phase_limitations=(
+                        f"Context budget: {budget['total_required']} tokens required, "
+                        f"{budget['configured_context_limit']} configured after "
+                        "bounded evidence reduction.",
+                        "No non-empty evidence bundle fits available context.",
+                    ),
+                    evidence_bundle_sha256=evidence_bundle.bundle_sha256,
+                    model_id=config.model_id,
+                    runtime_profile_version=config.runtime_profile_version,
+                    prompt_schema_version=config.prompt_schema_version,
                 )
 
             if budget["budget_status"] == "EXCEEDED":
@@ -542,12 +565,9 @@ Output exactly one JSON object matching the schema.
                 evidence_records=tuple(retained_records),
                 excluded_evidence_records=tuple(excluded_records),
                 bundle_byte_count=sum(r.byte_count for r in retained_records),
-                bundle_sha256=_sha256_text(
-                    "|".join(r.content_sha256 for r in retained_records)
-                ),
-                collection_limitations=evidence_bundle.collection_limitations + tuple(
-                    context_budget_limitations
-                ),
+                bundle_sha256=_sha256_text("|".join(r.content_sha256 for r in retained_records)),
+                collection_limitations=evidence_bundle.collection_limitations
+                + tuple(context_budget_limitations),
             )
 
         # Step 7: Run model
@@ -635,9 +655,7 @@ Output exactly one JSON object matching the schema.
 
         # Step 10: Cache result
         if not self._no_cache and fingerprint_complete:
-            cache_key = self._build_cache_key(
-                intake, evidence_bundle, output_language
-            )
+            cache_key = self._build_cache_key(intake, evidence_bundle, output_language)
             self._cache.put(cache_key, result, fingerprint_complete)
 
         # Step 11: Update session
@@ -662,9 +680,7 @@ Output exactly one JSON object matching the schema.
         """Build deterministic cache key."""
         config = get_runtime_config()
         return AnalysisCacheKey(
-            normalized_request_sha256=_sha256_text(
-                _normalize_request(intake.normalized_request)
-            ),
+            normalized_request_sha256=_sha256_text(_normalize_request(intake.normalized_request)),
             task_type=intake.detected_task_type.value,
             output_language=output_language,
             model_id=config.model_id,
@@ -678,14 +694,23 @@ Output exactly one JSON object matching the schema.
     def _detect_language(self, text: str) -> str:
         """Detect request language deterministically."""
         spanish_indicators = [
-            "revis", "cambio", "error", "explic", "cómo", "donde",
-            "qué", "arregl", "corregir", "mejorar", "producción",
-            "listo", "desplegar", "entregar",
+            "revis",
+            "cambio",
+            "error",
+            "explic",
+            "cómo",
+            "donde",
+            "qué",
+            "arregl",
+            "corregir",
+            "mejorar",
+            "producción",
+            "listo",
+            "desplegar",
+            "entregar",
         ]
         text_lower = text.lower()
-        spanish_count = sum(
-            1 for indicator in spanish_indicators if indicator in text_lower
-        )
+        spanish_count = sum(1 for indicator in spanish_indicators if indicator in text_lower)
         if spanish_count >= 2:
             return "es"
         return "en"

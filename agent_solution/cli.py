@@ -60,6 +60,134 @@ def _add_analyze_subparser(subparsers: argparse._SubParsersAction) -> None:  # n
     )
 
 
+def _add_validate_patch_subparser(subparsers: argparse._SubParsersAction) -> None:  # noqa: SLF001
+    """Add the deterministic Phase 04 patch-validation subcommand."""
+    from agent_solution.patch_validation.models import ValidationProfile
+
+    parser = subparsers.add_parser(
+        "validate-patch",
+        help="Apply one unified patch only in a detached worktree and run allowlisted checks.",
+    )
+    parser.add_argument("--patch-file", type=Path, required=True, help="UTF-8 unified diff file.")
+    parser.add_argument(
+        "--repository",
+        type=Path,
+        default=None,
+        help="Repository root. Defaults to current directory.",
+    )
+    parser.add_argument(
+        "--base-ref",
+        default="HEAD",
+        help="Immutable Git commit/ref for the worktree.",
+    )
+    parser.add_argument(
+        "--profile",
+        choices=[profile.value for profile in ValidationProfile],
+        default=ValidationProfile.STANDARD.value,
+        help="Named fixed command allowlist.",
+    )
+    parser.add_argument(
+        "--allow-path",
+        action="append",
+        default=[],
+        help="Optional exact repository-relative path allowlist. Repeat as needed.",
+    )
+    parser.add_argument(
+        "--artifact-dir",
+        type=Path,
+        default=None,
+        help="Directory for the machine-readable validation artifact.",
+    )
+    parser.add_argument(
+        "--retain-worktree",
+        action="store_true",
+        help="Keep the temporary detached worktree for manual debugging.",
+    )
+
+
+def _add_readiness_subparser(subparsers: argparse._SubParsersAction) -> None:  # noqa: SLF001
+    """Add the deterministic Phase 05 readiness subcommand."""
+    parser = subparsers.add_parser(
+        "readiness",
+        help="Evaluate readiness only from Phase 03 and Phase 04 JSON artifacts.",
+    )
+    parser.add_argument(
+        "--analysis-artifact",
+        type=Path,
+        required=True,
+        help="Phase 03 structured JSON result.",
+    )
+    parser.add_argument(
+        "--patch-validation-artifact",
+        type=Path,
+        default=None,
+        help="Phase 04 machine-readable validation artifact.",
+    )
+    parser.add_argument(
+        "--artifact-dir",
+        type=Path,
+        default=None,
+        help="Directory for the machine-readable readiness artifact.",
+    )
+
+
+def _run_validate_patch(args: argparse.Namespace) -> int:
+    """Execute Phase 04 without any model call or source-checkout mutation."""
+    from agent_solution.patch_validation.models import PatchValidationStatus, ValidationProfile
+    from agent_solution.patch_validation.service import validate_patch, write_validation_artifact
+
+    repository = args.repository.resolve() if args.repository else Path.cwd()
+    artifact_dir = args.artifact_dir or repository / "artifacts"
+    try:
+        patch_text = args.patch_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        print(json.dumps({"status": "INVALID_REQUEST", "error": str(exc)}, indent=2))
+        return 1
+
+    result = validate_patch(
+        repository,
+        patch_text,
+        base_ref=args.base_ref,
+        validation_profile=ValidationProfile(args.profile),
+        allowed_paths=tuple(args.allow_path),
+        retain_worktree=args.retain_worktree,
+    )
+    artifact_path = write_validation_artifact(result, artifact_dir)
+    output = result.to_dict()
+    output["artifact_path"] = str(artifact_path)
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+    return 0 if result.status is PatchValidationStatus.VALIDATED else 1
+
+
+def _run_readiness(args: argparse.Namespace) -> int:
+    """Execute Phase 05 from prior machine-readable artifacts only."""
+    from agent_solution.decision.models import ReadinessStatus
+    from agent_solution.decision.policy import (
+        evaluate_readiness,
+        load_json_artifact,
+        write_readiness_artifact,
+    )
+
+    try:
+        analysis_payload = load_json_artifact(args.analysis_artifact)
+        patch_payload = (
+            load_json_artifact(args.patch_validation_artifact)
+            if args.patch_validation_artifact
+            else None
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"status": "INVALID_INPUT", "error": str(exc)}, indent=2))
+        return 1
+
+    decision = evaluate_readiness(analysis_payload, patch_payload)
+    artifact_dir = args.artifact_dir or args.analysis_artifact.resolve().parent
+    artifact_path = write_readiness_artifact(decision, artifact_dir)
+    output = decision.to_dict()
+    output["artifact_path"] = str(artifact_path)
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+    return 0 if decision.status is ReadinessStatus.READY else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="storefront-guard",
@@ -80,6 +208,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     _add_analyze_subparser(subparsers)
+    _add_validate_patch_subparser(subparsers)
+    _add_readiness_subparser(subparsers)
     return parser
 
 
@@ -99,6 +229,7 @@ def _run_analyze(args: argparse.Namespace) -> int:
     has_diff = False
     try:
         from agent_solution.git_tools.collector import _run_git
+
         result = _run_git(
             ["status", "--porcelain"],
             cwd=repository,
@@ -172,6 +303,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "analyze":
         return _run_analyze(args)
+
+    if args.command == "validate-patch":
+        return _run_validate_patch(args)
+
+    if args.command == "readiness":
+        return _run_readiness(args)
 
     parser.print_help()
     return 0

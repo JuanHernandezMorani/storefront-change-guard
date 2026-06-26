@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "storefront-change-guard"
-version = "0.1.0"
+version = "0.4.0"
 description = "Local-first, evidence-based e-commerce change review prototype."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -30,6 +30,7 @@ packages = [
   "agent_solution.git_tools",
   "agent_solution.analysis",
   "agent_solution.model",
+  "agent_solution.patch_validation",
   "agent_solution.checks",
   "agent_solution.intelligence",
   "agent_solution.decision",

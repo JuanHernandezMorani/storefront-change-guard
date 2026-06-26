@@ -9,7 +9,11 @@ from pathlib import Path
 
 from agent_solution.analysis.models import SingleModelRuntimeConfig
 from agent_solution.model.config import get_runtime_config
-from agent_solution.model.runner import _build_command, run_model
+from agent_solution.model.runner import (
+    _build_command,
+    run_model,
+    sanitize_llama_cli_stdout,
+)
 
 # ---------------------------------------------------------------------------
 # Runtime Configuration Tests
@@ -429,3 +433,129 @@ class TestModelFileGitIgnore:
 
         manifest = project_root() / "agent_solution" / "model" / "model-manifest.example.json"
         assert manifest.exists()
+
+
+# ---------------------------------------------------------------------------
+# llama-cli stdout sanitization tests (Phase-03-FIX-03)
+# ---------------------------------------------------------------------------
+
+
+class TestLlamaCliStdoutSanitization:
+    """Verify only known llama-cli wrapper noise is removed."""
+
+    @staticmethod
+    def _json_payload() -> str:
+        return (
+            '{"analysis_mode":"CODE_REVIEW","summary":"ok",'
+            '"claims":[],"findings":[],"next_safe_action":"",'
+            '"phase_limitations":[]}'
+        )
+
+    def test_banner_prompt_echo_and_trailer_are_removed(self) -> None:
+        prompt = "You are an evidence-grounded code analysis assistant.\nOutput JSON."
+        raw = (
+            "Loading model...\n\nASCII ART\n"
+            "available commands:\n  /exit\n\n> "
+            + prompt
+            + "\n\n"
+            + self._json_payload()
+            + "\n\n[ Prompt: 212.7 t/s | Generation: 41.4 t/s ]\n\nExiting...\n"
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized == self._json_payload()
+        assert categories == (
+            "LLAMA_CLI_BANNER_AND_PROMPT_ECHO_STRIPPED",
+            "LLAMA_CLI_PERFORMANCE_TRAILER_STRIPPED",
+        )
+
+    def test_banner_prompt_echo_with_windows_crlf_is_removed(self) -> None:
+        """Windows prompt-file echo may preserve CRLF line endings."""
+        prompt = "System prompt\nOutput JSON."
+        raw = (
+            "Loading model...\r\nASCII ART\r\n> "
+            + prompt.replace("\n", "\r\n")
+            + "\r\n"
+            + self._json_payload()
+            + "\r\n[ Prompt: 1 t/s ]\r\nExiting..."
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized == self._json_payload()
+        assert categories == (
+            "LLAMA_CLI_BANNER_AND_PROMPT_ECHO_STRIPPED",
+            "LLAMA_CLI_PERFORMANCE_TRAILER_STRIPPED",
+        )
+
+    def test_observed_thinking_tags_normalize_only_at_leading_edge(self) -> None:
+        prompt = "System prompt"
+        raw = (
+            "Loading model...\n> "
+            + prompt
+            + "\n[Start thinking]\nprivate reasoning\n[End thinking]\n"
+            + self._json_payload()
+            + "\n[ Prompt: 1 t/s ]\nExiting..."
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized.startswith("<think>\nprivate reasoning\n</think>")
+        assert sanitized.endswith(self._json_payload())
+        assert categories == (
+            "LLAMA_CLI_BANNER_AND_PROMPT_ECHO_STRIPPED",
+            "LLAMA_CLI_PERFORMANCE_TRAILER_STRIPPED",
+            "OBSERVED_THINKING_TAGS_NORMALIZED",
+        )
+
+    def test_arbitrary_prose_is_not_removed(self) -> None:
+        raw = "Unexpected prose before JSON\n" + self._json_payload()
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, "System prompt")
+
+        assert sanitized == raw
+        assert categories == ()
+
+    def test_incomplete_observed_thinking_block_is_not_normalized(self) -> None:
+        prompt = "System prompt"
+        raw = "Loading model...\n> " + prompt + "\n[Start thinking]\nunfinished"
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized.startswith("[Start thinking]")
+        assert "OBSERVED_THINKING_TAGS_NORMALIZED" not in categories
+
+    def test_embedded_second_observed_thinking_tag_is_not_normalized(self) -> None:
+        prompt = "System prompt"
+        raw = (
+            "Loading model...\n> "
+            + prompt
+            + "\n[Start thinking]one[End thinking]"
+            + "\n[Start thinking]two[End thinking]\n"
+            + self._json_payload()
+        )
+
+        sanitized, categories = sanitize_llama_cli_stdout(raw, prompt)
+
+        assert sanitized.startswith("[Start thinking]")
+        assert "OBSERVED_THINKING_TAGS_NORMALIZED" not in categories
+
+    def test_sanitized_output_is_compatible_with_strict_envelope_parser(self) -> None:
+        from agent_solution.analysis.orchestrator import extract_reasoning_envelope
+
+        prompt = "System prompt"
+        raw = (
+            "Loading model...\n> "
+            + prompt
+            + "\n[Start thinking]\nprivate\n[End thinking]\n"
+            + self._json_payload()
+            + "\n[ Prompt: 1 t/s ]\nExiting..."
+        )
+
+        sanitized, _ = sanitize_llama_cli_stdout(raw, prompt)
+        extracted, diagnostics = extract_reasoning_envelope(sanitized)
+
+        assert extracted == self._json_payload()
+        assert diagnostics.failure_category is None
+        assert "private" not in extracted

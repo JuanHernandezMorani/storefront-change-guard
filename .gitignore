@@ -39,6 +39,9 @@ lerna-debug.log*
 *.ps1
 *.bat
 *.sh
+!scripts/
+!scripts/*.py
+!scripts/*.ps1
 
 node_modules
 dist

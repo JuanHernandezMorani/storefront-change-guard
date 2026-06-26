@@ -240,6 +240,8 @@ class ModelExecutionResult:
     duration_ms: int
     command: tuple[str, ...] = ()
     error_message: str = ""
+    raw_stdout_byte_count: int = 0
+    stdout_sanitization_categories: tuple[str, ...] = ()
 
 
 # ---------------------------------------------------------------------------

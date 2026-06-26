@@ -621,3 +621,60 @@ The Phase-02-FIX-02 Spanish review pattern `hac[ée] (una|uma) revis[io]?[áaó�
 ### Audit Link
 
 [phase-02-FIX-02-post-review-correction.md](phase-02-FIX-02-post-review-correction.md)
+
+---
+
+## Phase-03-FIX-03 Implementation Record — 2026-06-26
+
+### Identifier
+
+`Phase-03-FIX-03`
+
+### Type
+
+Runtime-boundary correction
+
+### Status
+
+Implementation complete — deterministic tests pass; fresh live Gate A pending
+
+### Scope
+
+Sanitize only known `llama-cli` stdout wrapper noise before strict Phase 03
+envelope parsing. The parser contract remains strict and is not converted into
+an arbitrary JSON searcher.
+
+### Validation
+
+- banner/prompt/trailer sanitization tests
+- observed thinking-tag normalization tests
+- arbitrary-prose rejection tests
+- incomplete/repeated tag rejection tests
+
+---
+
+## Phase 04 Implementation Record — 2026-06-26
+
+### Status
+
+Implementation complete — deterministic worktree tests pass; controlled live
+patch validation pending
+
+### Scope
+
+Detached worktree-only patch application, path safety, fixed validation
+allowlists, and machine-readable validation artifacts.
+
+---
+
+## Phase 05 Implementation Record — 2026-06-26
+
+### Status
+
+Implementation complete — deterministic policy tests pass; real-artifact
+readiness run pending
+
+### Scope
+
+Policy-driven `READY` / `NOT_READY` / `INSUFFICIENT_EVIDENCE` decisions from
+Phase 03 and Phase 04 JSON artifacts only.

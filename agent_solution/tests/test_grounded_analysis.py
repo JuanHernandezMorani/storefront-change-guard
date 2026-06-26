@@ -1658,7 +1658,7 @@ class TestImmutableDiagnostics:
         assert extracted is None
         assert diagnostics.failure_category == "PROSE_BETWEEN_REASONING_AND_JSON"
 
-    def test_prose_after_json_is_controlled(self) -> None:
+    def test_prose_after_json_is_rejected(self) -> None:
         from agent_solution.analysis.orchestrator import extract_reasoning_envelope
 
         raw = (
@@ -1675,9 +1675,9 @@ class TestImmutableDiagnostics:
             + "\nSome prose after"
         )
         extracted, diagnostics = extract_reasoning_envelope(raw)
-        assert extracted is not None
-        assert diagnostics.final_json_detected is True
-        assert diagnostics.failure_category is None
+        assert extracted is None
+        assert diagnostics.final_json_detected is False
+        assert diagnostics.failure_category == "PROSE_AFTER_JSON"
 
     def test_failure_categories_present_on_errors(self) -> None:
         from agent_solution.analysis.orchestrator import extract_reasoning_envelope
@@ -1899,19 +1899,27 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         # Extract file targets from request
@@ -1973,11 +1981,15 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2020,11 +2032,15 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2078,19 +2094,27 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2137,19 +2161,27 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2199,19 +2231,27 @@ class TestExplicitFileTargetEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2310,19 +2350,27 @@ class TestCodebaseQuestionEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2373,19 +2421,27 @@ class TestCodebaseQuestionEvidence:
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, check=True)
         subprocess.run(
             ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "Test"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "add", "shipping.py"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True, check=True,
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=True,
         )
 
         intake = IntakeContract(
@@ -2429,3 +2485,62 @@ class TestCodebaseQuestionEvidence:
                 AnalysisStatus.MODEL_TIMEOUT,
                 AnalysisStatus.MODEL_EXECUTION_FAILED,
             )
+
+# ---------------------------------------------------------------------------
+# Test 35: Context reduction must never invoke a model with zero evidence
+# ---------------------------------------------------------------------------
+
+
+class TestContextReductionEvidenceSafety:
+    """Verify bounded context reduction preserves the no-empty-evidence rule."""
+
+    def test_all_evidence_pruned_blocks_model_invocation(self, tmp_path: Path) -> None:
+        from dataclasses import replace
+        from unittest.mock import patch
+
+        from agent_solution.model.config import get_runtime_config
+
+        repo = _make_repo(tmp_path)
+        intake = _make_intake("Review code.py.")
+        snapshot = collect_git_context(
+            repository_root=repo,
+            scope_mode=ScopeMode.WORKING_TREE_DIFF,
+        )
+        oversized_record = EvidenceRecord(
+            evidence_id="E1",
+            source_kind=SourceKind.DIFF_ARTIFACT,
+            relative_path="(unstaged diff)",
+            start_line=1,
+            end_line=1,
+            content="x" * 5000,
+            content_sha256="oversized",
+            byte_count=5000,
+            selection_reason="test_oversized_diff",
+            provenance="git diff",
+        )
+        bundle = _make_evidence_bundle([oversized_record])
+        orchestrator = AnalysisOrchestrator(
+            state_dir=tmp_path / "state",
+            no_cache=True,
+        )
+        constrained_config = replace(get_runtime_config(), context_limit=2100)
+
+        with (
+            patch.object(orchestrator._evidence_builder, "build", return_value=bundle),
+            patch(
+                "agent_solution.analysis.orchestrator.get_runtime_config",
+                return_value=constrained_config,
+            ),
+            patch("agent_solution.analysis.orchestrator.run_model") as mock_run,
+        ):
+            result = orchestrator.analyze(
+                intake=intake,
+                git_snapshot=snapshot,
+                repository_root=repo,
+                output_language="en",
+            )
+
+        mock_run.assert_not_called()
+        assert result.status == AnalysisStatus.INSUFFICIENT_EVIDENCE
+        assert "no model call was made" in result.summary
+        assert result.evidence_bundle_sha256 == bundle.bundle_sha256
